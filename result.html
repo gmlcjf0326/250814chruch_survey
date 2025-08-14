@@ -6,24 +6,31 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#667eea">
-    <title>청년부 설문조사 - 결과</title>
+    <meta name="theme-color" content="#2563eb">
+    <title>청년부 수련회 퀴즈 - 결과</title>
     <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container result-container">
+        <!-- 참여자 버블 바 -->
+        <div class="participants-bar" id="participants-bar">
+            <!-- 동적 생성 -->
+        </div>
+
         <header>
-            <h1>청년부 설문조사 실시간 결과</h1>
+            <h1>📊 퀴즈 실시간 결과</h1>
             <div class="result-header-info">
                 <span class="live-indicator">
                     <span class="live-dot"></span> LIVE
                 </span>
-                <span class="last-update">마지막 업데이트: <span id="last-update-time">--:--:--</span></span>
+                <span class="last-update">업데이트: <span id="last-update-time">--:--:--</span></span>
                 <button id="toggle-auto-refresh" class="auto-refresh-btn active">자동 새로고침 ON</button>
             </div>
         </header>
 
         <main class="result-main">
+            <!-- 요약 카드 -->
             <div class="summary-section">
                 <div class="summary-card">
                     <h3>전체 참여자</h3>
@@ -33,7 +40,7 @@
                 <div class="summary-card">
                     <h3>현재 문제</h3>
                     <div class="summary-value" id="current-question-result">-</div>
-                    <span class="summary-label">/ 15</span>
+                    <span class="summary-label">/ 60</span>
                 </div>
                 <div class="summary-card">
                     <h3>응답률</h3>
@@ -46,11 +53,18 @@
                 </div>
             </div>
 
+            <!-- 현재 문제 결과 -->
             <section class="current-question-result">
-                <h2>현재 문제 결과</h2>
+                <h2>🎯 현재 문제 결과</h2>
                 <div class="question-info">
+                    <div class="question-header">
+                        <span class="question-session" id="current-session">-</span>
+                        <span class="question-number" id="question-number">Q-</span>
+                    </div>
                     <h3 id="current-question-text">문제를 기다리는 중...</h3>
-                    <div class="response-count">응답: <span id="current-responses">0</span>명</div>
+                    <div class="response-count">
+                        응답: <span id="current-responses">0</span>명 / <span id="total-participants-count">0</span>명
+                    </div>
                 </div>
                 <div class="chart-container">
                     <canvas id="current-question-chart"></canvas>
@@ -60,142 +74,176 @@
                 </div>
             </section>
 
-            <section class="all-questions-results">
-                <h2>전체 문제 결과</h2>
-                <div class="questions-tabs" id="questions-tabs">
-                    <!-- 문제 탭들 동적 생성 -->
+            <!-- 세션별 탭 -->
+            <section class="session-results">
+                <h2>📚 세션별 결과</h2>
+                <div class="session-tabs">
+                    <button class="tab-btn active" data-tab="overview">전체 개요</button>
+                    <button class="tab-btn" data-tab="session1">세션1</button>
+                    <button class="tab-btn" data-tab="session2">세션2</button>
+                    <button class="tab-btn" data-tab="session3">세션3</button>
+                    <button class="tab-btn" data-tab="session4">세션4</button>
+                    <button class="tab-btn" data-tab="session5">세션5</button>
+                    <button class="tab-btn" data-tab="session6">세션6</button>
+                    <button class="tab-btn" data-tab="session7">세션7</button>
+                    <button class="tab-btn" data-tab="session8">세션8</button>
+                    <button class="tab-btn" data-tab="session9">세션9</button>
+                    <button class="tab-btn" data-tab="session10">세션10</button>
                 </div>
-                <div class="questions-results-container">
-                    <div class="question-result-grid" id="all-results">
-                        <!-- 모든 문제 결과 카드 -->
+                
+                <div class="tab-content active" id="overview-tab">
+                    <div class="overview-grid">
+                        <!-- 세션별 개요 카드 -->
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="session1-tab">
+                    <h3>세션 1: 오프닝 & 워밍업</h3>
+                    <div class="session-questions-grid">
+                        <!-- 세션 1 문제들 -->
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="session2-tab">
+                    <h3>세션 2: 신앙 관련</h3>
+                    <div class="session-questions-grid">
+                        <!-- 세션 2 문제들 -->
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="session3-tab">
+                    <h3>세션 3: 연애 & 관계</h3>
+                    <div class="session-questions-grid">
+                        <!-- 세션 3 문제들 -->
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="session4-tab">
+                    <h3>세션 4: 청년부 어워즈</h3>
+                    <div class="session-questions-grid">
+                        <!-- 세션 4 문제들 -->
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="session5-tab">
+                    <h3>세션 5: 커플 매칭</h3>
+                    <div class="session-questions-grid">
+                        <!-- 세션 5 문제들 -->
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="session6-tab">
+                    <h3>세션 6: 재미있는 질문</h3>
+                    <div class="session-questions-grid">
+                        <!-- 세션 6 문제들 -->
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="session7-tab">
+                    <h3>세션 7: TMI & 비밀</h3>
+                    <div class="session-questions-grid">
+                        <!-- 세션 7 문제들 -->
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="session8-tab">
+                    <h3>세션 8: 청년부 RPG</h3>
+                    <div class="session-questions-grid">
+                        <!-- 세션 8 문제들 -->
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="session9-tab">
+                    <h3>세션 9: 따뜻한 마음</h3>
+                    <div class="session-questions-grid">
+                        <!-- 세션 9 문제들 -->
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="session10-tab">
+                    <h3>세션 10: 타임캡슐 & 미래</h3>
+                    <div class="session-questions-grid">
+                        <!-- 세션 10 문제들 -->
                     </div>
                 </div>
             </section>
 
+            <!-- 통계 섹션 -->
             <section class="statistics-section">
-                <h2>통계</h2>
+                <h2>📈 통계 분석</h2>
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <h4>가장 많이 선택된 답변</h4>
-                        <div id="most-selected" class="stat-content">-</div>
+                        <h4>가장 인기 있는 답변</h4>
+                        <div id="most-selected" class="stat-content">
+                            <div class="stat-item">
+                                <span class="stat-label">-</span>
+                                <span class="stat-value">-</span>
+                            </div>
+                        </div>
                     </div>
                     <div class="stat-card">
                         <h4>평균 응답 시간</h4>
-                        <div id="avg-response-time" class="stat-content">-</div>
+                        <div id="avg-response-time" class="stat-content">
+                            <span class="big-stat">-</span>
+                            <span class="stat-unit">초</span>
+                        </div>
                     </div>
                     <div class="stat-card">
                         <h4>완료된 문제</h4>
-                        <div id="completed-questions" class="stat-content">0 / 15</div>
+                        <div id="completed-questions" class="stat-content">
+                            <span class="big-stat">0</span>
+                            <span class="stat-unit">/ 60</span>
+                        </div>
                     </div>
                     <div class="stat-card">
-                        <h4>참여 추이</h4>
+                        <h4>세션별 참여율</h4>
                         <canvas id="participation-trend"></canvas>
                     </div>
                 </div>
             </section>
 
-            <section class="cumulative-statistics">
-                <h2>누적 통계 분석</h2>
-                <div class="cumulative-tabs">
-                    <button class="tab-btn active" data-tab="overall">전체 개요</button>
-                    <button class="tab-btn" data-tab="questions">문항별 분석</button>
-                    <button class="tab-btn" data-tab="sessions">세션별 비교</button>
-                    <button class="tab-btn" data-tab="trends">추세 분석</button>
-                </div>
-                
-                <div class="cumulative-content">
-                    <div id="overall-tab" class="tab-content active">
-                        <div class="overview-stats">
-                            <div class="overview-card">
-                                <h4>총 참여자 수</h4>
-                                <div class="big-number" id="total-all-participants">0</div>
-                                <span class="trend-indicator" id="participant-trend">-</span>
-                            </div>
-                            <div class="overview-card">
-                                <h4>평균 완료율</h4>
-                                <div class="big-number" id="avg-completion-rate">0%</div>
-                                <div class="progress-bar">
-                                    <div class="progress-fill" id="completion-bar"></div>
-                                </div>
-                            </div>
-                            <div class="overview-card">
-                                <h4>총 세션 수</h4>
-                                <div class="big-number" id="total-sessions">0</div>
-                                <span class="sub-text" id="active-sessions">활성: 0</span>
-                            </div>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="overall-chart"></canvas>
-                        </div>
-                    </div>
-                    
-                    <div id="questions-tab" class="tab-content">
-                        <div class="questions-analysis">
-                            <div class="chart-container">
-                                <canvas id="questions-response-chart"></canvas>
-                            </div>
-                            <div class="questions-table">
-                                <table id="questions-stats-table">
-                                    <thead>
-                                        <tr>
-                                            <th>문항</th>
-                                            <th>응답수</th>
-                                            <th>응답률</th>
-                                            <th>평균 시간</th>
-                                            <th>가장 많은 답변</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="questions-stats-body">
-                                        <!-- 동적 생성 -->
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div id="sessions-tab" class="tab-content">
-                        <div class="sessions-comparison">
-                            <div class="chart-container">
-                                <canvas id="sessions-comparison-chart"></canvas>
-                            </div>
-                            <div class="sessions-list" id="sessions-list">
-                                <!-- 세션 목록 동적 생성 -->
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div id="trends-tab" class="tab-content">
-                        <div class="trends-analysis">
-                            <div class="chart-container">
-                                <canvas id="trends-chart"></canvas>
-                            </div>
-                            <div class="trend-insights">
-                                <h4>주요 인사이트</h4>
-                                <ul id="trend-insights-list">
-                                    <!-- 동적 생성 -->
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
+            <!-- 참여자별 통계 -->
+            <section class="participant-statistics">
+                <h2>👥 참여자별 통계</h2>
+                <div class="participant-stats-grid" id="participant-stats-grid">
+                    <!-- 동적 생성 -->
                 </div>
             </section>
 
+            <!-- 어워즈 결과 -->
+            <section class="awards-results">
+                <h2>🏆 청년부 어워즈 결과</h2>
+                <div class="awards-grid" id="awards-grid">
+                    <!-- 동적 생성 -->
+                </div>
+            </section>
+
+            <!-- 데이터 내보내기 -->
             <section class="export-section">
-                <h2>데이터 내보내기</h2>
+                <h2>💾 데이터 내보내기</h2>
                 <div class="export-buttons">
-                    <button id="export-csv" class="export-btn">CSV 다운로드</button>
-                    <button id="export-json" class="export-btn">JSON 다운로드</button>
-                    <button id="print-results" class="export-btn">인쇄하기</button>
+                    <button id="export-csv" class="export-btn">
+                        <span>📄</span> CSV 다운로드
+                    </button>
+                    <button id="export-json" class="export-btn">
+                        <span>📋</span> JSON 다운로드
+                    </button>
+                    <button id="export-pdf" class="export-btn">
+                        <span>📑</span> PDF 보고서
+                    </button>
+                    <button id="print-results" class="export-btn">
+                        <span>🖨️</span> 인쇄하기
+                    </button>
                 </div>
             </section>
         </main>
 
         <footer>
             <div class="footer-links">
-                <a href="admin.html">관리자 패널</a>
-                <a href="index.html">설문 참여</a>
+                <a href="admin.html">🎮 관리자 패널</a>
+                <a href="index.html">📱 퀴즈 참여</a>
             </div>
-            <p>© 2024 청년부 설문조사 결과</p>
+            <p id="footer-info">© 2024 청년부 수련회 퀴즈 결과</p>
         </footer>
     </div>
 
@@ -205,15 +253,9 @@
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- 환경변수 처리 -->
-    <script>
-        // Netlify에서는 process.env를 사용할 수 없으므로 제거
-        // config.js에서 직접 처리
-    </script>
-    
     <!-- 설정 및 앱 스크립트 -->
     <script src="config.js"></script>
-    <script src="app.js"></script>
+    <script src="result-new.js"></script>
     <script>
         // 결과 화면 초기화
         document.addEventListener('DOMContentLoaded', function() {

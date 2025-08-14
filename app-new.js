@@ -6,7 +6,7 @@ const APP_STATE = {
     surveyStatus: 'waiting',
     currentSession: 0,
     currentQuestion: 0,
-    totalQuestions: 30,
+    totalQuestions: 60,
     timerSeconds: 10,
     timerInterval: null,
     syncInterval: null,
@@ -52,7 +52,7 @@ const COLOR_PALETTES = {
 // 퀴즈 데이터 로드
 async function loadQuizData() {
     try {
-        const response = await fetch('quiz-data.json');
+        const response = await fetch('quiz-data-60.json');
         APP_STATE.quizData = await response.json();
         
         // 질문 배열 생성
@@ -720,6 +720,16 @@ async function handleAnswerSubmit(e) {
     responses[state.currentQuestion][APP_STATE.userInfo.userId] = answer;
     localStorage.setItem(STORAGE_KEYS.RESPONSES, JSON.stringify(responses));
     
+    // 실시간 업데이트 트리거 (브로드캐스트 이벤트)
+    window.dispatchEvent(new CustomEvent('responseUpdated', {
+        detail: {
+            questionId: state.currentQuestion,
+            userId: APP_STATE.userInfo.userId,
+            answer: answer,
+            timestamp: Date.now()
+        }
+    }));
+    
     // 활동 로그
     const activityLog = {
         user_id: APP_STATE.userInfo.userId,
@@ -732,6 +742,9 @@ async function handleAnswerSubmit(e) {
     const logs = JSON.parse(localStorage.getItem('activity_logs') || '[]');
     logs.push(activityLog);
     localStorage.setItem('activity_logs', JSON.stringify(logs));
+    
+    // 참여자 버블 즉시 업데이트
+    updateParticipantsBubbles();
     
     // 제출 완료 화면
     showSubmittedScreen(formatAnswer(answer, questionData.question_type));
