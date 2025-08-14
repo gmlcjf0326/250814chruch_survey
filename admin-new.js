@@ -88,6 +88,20 @@ async function loadQuizData() {
 
 // 관리자 화면 초기화
 function initAdminScreen() {
+    // 간단한 관리자 인증
+    const adminPassword = localStorage.getItem('admin_authenticated');
+    const sessionAuth = sessionStorage.getItem('admin_session');
+    
+    if (!sessionAuth) {
+        const password = prompt('관리자 비밀번호를 입력하세요:');
+        if (password !== '2024youth') {
+            alert('비밀번호가 틀렸습니다.');
+            window.location.href = 'index.html';
+            return;
+        }
+        sessionStorage.setItem('admin_session', 'true');
+    }
+    
     // 퀴즈 데이터 로드
     loadQuizData().then(success => {
         if (!success) {
@@ -601,12 +615,28 @@ function initializeChart() {
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false,
+            maintainAspectRatio: true,
+            aspectRatio: 2,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                }
+            },
             scales: {
                 y: {
                     beginAtZero: true,
                     ticks: {
                         stepSize: 1
+                    },
+                    max: 30
+                },
+                x: {
+                    ticks: {
+                        maxRotation: 45,
+                        minRotation: 0,
+                        autoSkip: true,
+                        maxTicksLimit: 10
                     }
                 }
             }

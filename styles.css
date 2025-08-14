@@ -1077,6 +1077,13 @@ footer {
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
     margin-bottom: 1.5rem;
+    position: relative;
+    height: 400px;
+    max-height: 400px;
+}
+
+.chart-container canvas {
+    max-height: 350px !important;
 }
 
 /* Responsive */

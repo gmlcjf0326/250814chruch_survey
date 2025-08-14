@@ -169,12 +169,17 @@
     
     <!-- 설정 및 앱 스크립트 -->
     <script src="config.js"></script>
+    <script src="realtime-sync.js"></script>
     <script src="app-new.js"></script>
     <script>
         // 사용자 화면 초기화
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof initUserScreen === 'function') {
                 initUserScreen();
+            }
+            // 실시간 동기화 시작
+            if (typeof RealtimeSync !== 'undefined') {
+                RealtimeSync.init('user');
             }
         });
     </script>
