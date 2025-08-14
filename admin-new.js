@@ -94,7 +94,7 @@ function initAdminScreen() {
     
     if (!sessionAuth) {
         const password = prompt('관리자 비밀번호를 입력하세요:');
-        if (password !== '2024youth') {
+        if (password !== '2025youth') {
             alert('비밀번호가 틀렸습니다.');
             window.location.href = 'index.html';
             return;

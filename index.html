@@ -70,6 +70,25 @@
                         <span id="my-nickname"></span>
                         <span id="my-color"></span>
                     </div>
+                    
+                    <!-- 실시간 통계 표시 영역 -->
+                    <div id="realtime-stats" class="realtime-stats" style="display: none;">
+                        <h3>📊 현재 문제 실시간 결과</h3>
+                        <div class="stats-question">
+                            <span class="question-number" id="stats-question-num">Q-</span>
+                            <p id="stats-question-text">-</p>
+                        </div>
+                        <div class="stats-chart">
+                            <canvas id="waiting-chart"></canvas>
+                        </div>
+                        <div class="stats-summary" id="stats-summary">
+                            <!-- 동적 생성 -->
+                        </div>
+                        <div class="stats-meta">
+                            <span>총 응답: <strong id="total-responses">0</strong>명</span>
+                            <span>참여율: <strong id="response-rate">0</strong>%</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -164,11 +183,15 @@
         </div>
     </div>
 
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <!-- 설정 및 앱 스크립트 -->
     <script src="config.js"></script>
+    <script src="supabase-sync.js"></script>
     <script src="realtime-sync.js"></script>
     <script src="app-new.js"></script>
     <script>

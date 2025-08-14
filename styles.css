@@ -341,6 +341,108 @@ main {
     padding: 3rem 0;
 }
 
+/* 실시간 통계 스타일 */
+.realtime-stats {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    animation: fadeIn var(--transition-base);
+}
+
+.realtime-stats h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: 1rem;
+}
+
+.stats-question {
+    background: var(--gray-50);
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1rem;
+}
+
+.stats-question .question-number {
+    display: inline-block;
+    background: var(--primary-blue);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-full);
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.stats-question p {
+    font-size: 0.9375rem;
+    color: var(--gray-700);
+    margin: 0.5rem 0 0 0;
+}
+
+.stats-chart {
+    margin: 1rem 0;
+    height: 250px;
+}
+
+.stats-chart canvas {
+    max-height: 250px !important;
+}
+
+.stats-summary {
+    margin: 1rem 0;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.stats-summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    background: var(--gray-50);
+    border-radius: var(--radius-sm);
+    margin-bottom: 0.5rem;
+}
+
+.stats-summary-item .answer {
+    font-weight: 500;
+    color: var(--gray-700);
+    flex: 1;
+}
+
+.stats-summary-item .count {
+    background: var(--primary-blue);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-full);
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-left: 1rem;
+}
+
+.stats-summary-item .percentage {
+    color: var(--gray-500);
+    font-size: 0.875rem;
+    margin-left: 0.5rem;
+}
+
+.stats-meta {
+    display: flex;
+    justify-content: space-around;
+    padding-top: 1rem;
+    border-top: 1px solid var(--gray-200);
+    font-size: 0.875rem;
+    color: var(--gray-600);
+}
+
+.stats-meta strong {
+    color: var(--primary-blue);
+    font-weight: 600;
+}
+
 .loader {
     width: 3rem;
     height: 3rem;

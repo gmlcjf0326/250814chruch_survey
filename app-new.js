@@ -158,7 +158,7 @@ function setupRegistration() {
         // 내 정보 표시
         document.getElementById('my-nickname').textContent = nickname;
         document.getElementById('my-color').style.backgroundColor = color;
-        document.getElementById('user-info').textContent = `${nickname} | © 2024 청년부 수련회`;
+        document.getElementById('user-info').textContent = `${nickname} | © 2025 청년부 수련회`;
         
         // 동기화 시작
         startUserSync();
@@ -330,7 +330,7 @@ function initUserScreen() {
             document.getElementById('waiting-screen').classList.add('active');
             document.getElementById('my-nickname').textContent = APP_STATE.userInfo.nickname;
             document.getElementById('my-color').style.backgroundColor = APP_STATE.userInfo.color;
-            document.getElementById('user-info').textContent = `${APP_STATE.userInfo.nickname} | © 2024 청년부 수련회`;
+            document.getElementById('user-info').textContent = `${APP_STATE.userInfo.nickname} | © 2025 청년부 수련회`;
             startUserSync();
         } else {
             // 새 사용자는 등록 화면
@@ -778,12 +778,181 @@ function showSubmittedScreen(answerText) {
             </div>
         `;
     }
+    
+    // 대기 화면으로 전환하면서 실시간 통계 표시
+    setTimeout(() => {
+        showWaitingScreenWithStats();
+    }, 2000); // 2초 후 대기 화면으로 전환
 }
 
 // 대기 화면
 function showWaitingScreen() {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('waiting-screen').classList.add('active');
+}
+
+// 대기 화면에 실시간 통계 표시
+function showWaitingScreenWithStats() {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('waiting-screen').classList.add('active');
+    
+    // 실시간 통계 영역 표시
+    const statsDiv = document.getElementById('realtime-stats');
+    if (statsDiv) {
+        statsDiv.style.display = 'block';
+        updateRealtimeStats();
+        
+        // 실시간 업데이트 시작
+        if (APP_STATE.statsUpdateInterval) {
+            clearInterval(APP_STATE.statsUpdateInterval);
+        }
+        APP_STATE.statsUpdateInterval = setInterval(updateRealtimeStats, 2000); // 2초마다 업데이트
+    }
+}
+
+// 실시간 통계 업데이트
+function updateRealtimeStats() {
+    const state = JSON.parse(localStorage.getItem(STORAGE_KEYS.SURVEY_STATE) || '{}');
+    const responses = JSON.parse(localStorage.getItem(STORAGE_KEYS.RESPONSES) || '{}');
+    const participants = JSON.parse(localStorage.getItem(STORAGE_KEYS.PARTICIPANTS) || '[]');
+    
+    if (!state.currentQuestion || state.currentQuestion === 0) {
+        return;
+    }
+    
+    // 현재 문제 정보
+    const questionData = quizData.find(q => q.question_id === state.currentQuestion);
+    if (!questionData) return;
+    
+    // 통계 정보 업데이트
+    document.getElementById('stats-question-num').textContent = `Q${state.currentQuestion}`;
+    document.getElementById('stats-question-text').textContent = questionData.question_text;
+    
+    const currentResponses = responses[state.currentQuestion] || {};
+    const totalResponses = Object.keys(currentResponses).length;
+    const totalParticipants = participants.length;
+    const responseRate = totalParticipants > 0 ? Math.round((totalResponses / totalParticipants) * 100) : 0;
+    
+    document.getElementById('total-responses').textContent = totalResponses;
+    document.getElementById('response-rate').textContent = responseRate;
+    
+    // 답변별 통계 계산
+    const answerStats = {};
+    
+    Object.values(currentResponses).forEach(response => {
+        if (questionData.question_type === 'radio' || 
+            questionData.question_type === 'dropdown' || 
+            questionData.question_type === 'emoji') {
+            const answer = response.answer_text || response.selected_option;
+            if (answer) {
+                answerStats[answer] = (answerStats[answer] || 0) + 1;
+            }
+        } else if (questionData.question_type === 'checkbox') {
+            if (response.selected_options && Array.isArray(response.selected_options)) {
+                response.selected_options.forEach(option => {
+                    answerStats[option] = (answerStats[option] || 0) + 1;
+                });
+            }
+        } else if (questionData.question_type === 'voting') {
+            const voted = response.voted_for || response.answer_text;
+            if (voted) {
+                answerStats[voted] = (answerStats[voted] || 0) + 1;
+            }
+        }
+    });
+    
+    // 차트 업데이트
+    updateWaitingChart(answerStats, questionData);
+    
+    // 요약 통계 표시
+    const summaryDiv = document.getElementById('stats-summary');
+    if (Object.keys(answerStats).length > 0) {
+        const sortedStats = Object.entries(answerStats).sort((a, b) => b[1] - a[1]);
+        let summaryHTML = '<div class="stats-options">';
+        
+        sortedStats.forEach(([option, count]) => {
+            const percentage = totalResponses > 0 ? Math.round((count / totalResponses) * 100) : 0;
+            summaryHTML += `
+                <div class="stat-option">
+                    <span class="option-text">${option}</span>
+                    <div class="option-bar">
+                        <div class="option-fill" style="width: ${percentage}%"></div>
+                    </div>
+                    <span class="option-count">${count}명 (${percentage}%)</span>
+                </div>
+            `;
+        });
+        
+        summaryHTML += '</div>';
+        summaryDiv.innerHTML = summaryHTML;
+    }
+}
+
+// 대기 화면 차트 업데이트
+function updateWaitingChart(answerStats, questionData) {
+    const canvas = document.getElementById('waiting-chart');
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    
+    // 기존 차트 제거
+    if (APP_STATE.waitingChart) {
+        APP_STATE.waitingChart.destroy();
+    }
+    
+    const labels = Object.keys(answerStats);
+    const data = Object.values(answerStats);
+    
+    if (labels.length === 0) return;
+    
+    // 차트 타입 결정
+    const chartType = questionData.question_type === 'voting' ? 'bar' : 
+                     labels.length <= 5 ? 'pie' : 'bar';
+    
+    APP_STATE.waitingChart = new Chart(ctx, {
+        type: chartType,
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: [
+                    '#4A90E2', '#FF6B9D', '#FFC107', '#4CAF50', 
+                    '#9C27B0', '#FF5722', '#00BCD4', '#795548'
+                ],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: chartType === 'pie',
+                    position: 'bottom'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.parsed || context.parsed.y || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = Math.round((value / total) * 100);
+                            return `${label}: ${value}명 (${percentage}%)`;
+                        }
+                    }
+                }
+            },
+            scales: chartType === 'bar' ? {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            } : {}
+        }
+    });
 }
 
 // 종료 화면
