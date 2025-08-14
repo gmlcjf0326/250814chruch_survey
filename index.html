@@ -72,13 +72,10 @@
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- 환경변수 처리 (Vercel/Netlify) -->
+    <!-- 환경변수 처리 -->
     <script>
-        // 배포 환경에서 환경변수 주입
-        if (typeof process !== 'undefined' && process.env) {
-            window.SUPABASE_URL = process.env.VITE_SUPABASE_URL || '';
-            window.SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY || '';
-        }
+        // Netlify에서는 process.env를 사용할 수 없으므로 제거
+        // config.js에서 직접 처리
     </script>
     
     <!-- 설정 및 앱 스크립트 -->

@@ -2,13 +2,12 @@
   publish = "."
 
 [build.environment]
-  # These will be replaced with actual values from Netlify Environment Variables
   NODE_VERSION = "18"
 
 [[headers]]
   for = "/*"
   [headers.values]
-    X-Frame-Options = "DENY"
+    X-Frame-Options = "SAMEORIGIN"
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
@@ -27,11 +26,3 @@
   for = "/*.html"
   [headers.values]
     Cache-Control = "no-cache"
-
-# SPA redirect rules (if needed)
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-  conditions = {Role = ["admin"]}
-  force = false
