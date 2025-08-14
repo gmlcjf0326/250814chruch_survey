@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#667eea">
+    <title>청년부 설문조사 - 관리자</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container admin-container">
+        <header>
+            <h1>청년부 설문조사 관리자 패널</h1>
+            <div class="admin-controls">
+                <button id="start-survey" class="control-btn start-btn">설문 시작</button>
+                <button id="next-question" class="control-btn next-btn" disabled>다음 문제</button>
+                <button id="end-survey" class="control-btn end-btn" disabled>설문 종료</button>
+                <button id="reset-data" class="control-btn reset-btn">데이터 초기화</button>
+            </div>
+        </header>
+
+        <main class="admin-main">
+            <div class="admin-grid">
+                <section class="current-status">
+                    <h2>현재 상태</h2>
+                    <div class="status-info">
+                        <div class="status-item">
+                            <label>현재 문제:</label>
+                            <span id="current-question-num">-</span> / 15
+                        </div>
+                        <div class="status-item">
+                            <label>남은 시간:</label>
+                            <span id="admin-timer">--:--</span>
+                        </div>
+                        <div class="status-item">
+                            <label>참여자 수:</label>
+                            <span id="participant-count">0</span>명
+                        </div>
+                        <div class="status-item">
+                            <label>응답 완료:</label>
+                            <span id="response-count">0</span>명
+                        </div>
+                    </div>
+                </section>
+
+                <section class="question-preview">
+                    <h2>문제 미리보기</h2>
+                    <div class="preview-content">
+                        <h3 id="preview-question"></h3>
+                        <div id="preview-options"></div>
+                    </div>
+                </section>
+
+                <section class="question-list">
+                    <h2>문제 목록</h2>
+                    <div class="questions-container" id="questions-container">
+                        <!-- 동적으로 생성될 문제 목록 -->
+                    </div>
+                </section>
+
+                <section class="real-time-results">
+                    <h2>실시간 응답 현황</h2>
+                    <div class="results-chart">
+                        <canvas id="real-time-chart"></canvas>
+                    </div>
+                    <div class="results-summary" id="results-summary">
+                        <!-- 실시간 결과 요약 -->
+                    </div>
+                </section>
+            </div>
+
+            <section class="question-editor">
+                <h2>문제 편집</h2>
+                <div class="editor-form">
+                    <div class="form-group">
+                        <label>문제 번호:</label>
+                        <select id="question-select">
+                            <!-- 1-15번 문제 선택 -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>문제 유형:</label>
+                        <select id="question-type">
+                            <option value="multiple">5지선다형</option>
+                            <option value="text">단답형</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>문제:</label>
+                        <input type="text" id="question-text" placeholder="문제를 입력하세요...">
+                    </div>
+                    <div id="options-editor" class="form-group">
+                        <label>선택지:</label>
+                        <input type="text" class="option-input" placeholder="선택지 1" data-option="1">
+                        <input type="text" class="option-input" placeholder="선택지 2" data-option="2">
+                        <input type="text" class="option-input" placeholder="선택지 3" data-option="3">
+                        <input type="text" class="option-input" placeholder="선택지 4" data-option="4">
+                        <input type="text" class="option-input" placeholder="선택지 5" data-option="5">
+                    </div>
+                    <button id="save-question" class="save-btn">문제 저장</button>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <div class="footer-links">
+                <a href="index.html" target="_blank">사용자 화면</a>
+                <a href="result.html" target="_blank">결과 화면</a>
+            </div>
+            <p>© 2024 청년부 설문조사 관리자</p>
+        </footer>
+    </div>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- 환경변수 처리 (Vercel/Netlify) -->
+    <script>
+        // 배포 환경에서 환경변수 주입
+        if (typeof process !== 'undefined' && process.env) {
+            window.SUPABASE_URL = process.env.VITE_SUPABASE_URL || '';
+            window.SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY || '';
+        }
+    </script>
+    
+    <!-- 설정 및 앱 스크립트 -->
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // 관리자 화면 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof initAdminScreen === 'function') {
+                initAdminScreen();
+            }
+        });
+    </script>
+</body>
+</html>

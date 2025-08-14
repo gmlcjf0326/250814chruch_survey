@@ -1,0 +1,39 @@
+# Environment variables
+.env
+.env.local
+.env.production
+.env.development
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dependencies
+node_modules/
+
+# Build
+dist/
+build/
+
+# Backup files
+*.backup
+*.bak
+app-backup.js
+app-realtime.js
+
+# Temporary files
+*.tmp
+temp/

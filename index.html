@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#667eea">
+    <title>청년부 설문조사</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>청년부 설문조사</h1>
+            <div class="status-bar">
+                <span class="question-number">대기 중...</span>
+                <span class="timer" id="timer">--:--</span>
+            </div>
+        </header>
+
+        <main>
+            <div id="waiting-screen" class="screen active">
+                <div class="waiting-content">
+                    <div class="loader"></div>
+                    <h2>설문이 곧 시작됩니다</h2>
+                    <p>관리자가 문제를 준비하고 있습니다...</p>
+                </div>
+            </div>
+
+            <div id="question-screen" class="screen">
+                <div class="question-content">
+                    <h2 id="question-title"></h2>
+                    <form id="answer-form">
+                        <div id="options-container" class="options">
+                            <!-- 동적으로 생성될 옵션들 -->
+                        </div>
+                        <div id="text-answer-container" class="text-answer" style="display: none;">
+                            <input type="text" id="text-answer" placeholder="답변을 입력하세요..." maxlength="100">
+                        </div>
+                        <button type="submit" class="submit-btn" id="submit-btn">제출하기</button>
+                    </form>
+                </div>
+            </div>
+
+            <div id="submitted-screen" class="screen">
+                <div class="submitted-content">
+                    <div class="check-icon">✓</div>
+                    <h2>답변이 제출되었습니다!</h2>
+                    <p>다음 문제를 기다려주세요...</p>
+                    <div class="submitted-info">
+                        <p>제출한 답변: <span id="submitted-answer"></span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="finished-screen" class="screen">
+                <div class="finished-content">
+                    <h2>설문이 종료되었습니다</h2>
+                    <p>참여해 주셔서 감사합니다!</p>
+                    <a href="result.html" class="view-results-btn">결과 보기</a>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>© 2024 청년부 | 익명 참여</p>
+        </footer>
+    </div>
+
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- 환경변수 처리 (Vercel/Netlify) -->
+    <script>
+        // 배포 환경에서 환경변수 주입
+        if (typeof process !== 'undefined' && process.env) {
+            window.SUPABASE_URL = process.env.VITE_SUPABASE_URL || '';
+            window.SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY || '';
+        }
+    </script>
+    
+    <!-- 설정 및 앱 스크립트 -->
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // 사용자 화면 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof initUserScreen === 'function') {
+                initUserScreen();
+            }
+        });
+    </script>
+</body>
+</html>

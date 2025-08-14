@@ -1,0 +1,21 @@
+{
+  "name": "youth-survey-app",
+  "version": "1.0.0",
+  "description": "청년부 실시간 설문조사 시스템",
+  "main": "index.html",
+  "scripts": {
+    "dev": "python3 -m http.server 8000",
+    "serve": "npx http-server -p 8000"
+  },
+  "keywords": [
+    "survey",
+    "realtime",
+    "supabase",
+    "youth"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
