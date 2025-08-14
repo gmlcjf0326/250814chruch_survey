@@ -1,0 +1,428 @@
+{
+  "sessions": [
+    {
+      "session_number": 1,
+      "session_name": "아이스브레이킹",
+      "questions": [
+        {
+          "question_number": 1,
+          "question_type": "text",
+          "question_text": "닉네임을 정해주세요!",
+          "options": null,
+          "constraints": {
+            "max_length": 10,
+            "required": true
+          },
+          "timer_seconds": 30,
+          "chart_type": "word_cloud"
+        },
+        {
+          "question_number": 2,
+          "question_type": "emoji",
+          "question_text": "오늘 기분은 어떠신가요?",
+          "options": ["😊", "😎", "🤔", "😴", "🤗", "😆"],
+          "constraints": null,
+          "timer_seconds": 7,
+          "chart_type": "pie"
+        },
+        {
+          "question_number": 3,
+          "question_type": "slider",
+          "question_text": "수련회 기대감은 몇 %인가요?",
+          "options": null,
+          "constraints": {
+            "min_value": 0,
+            "max_value": 100,
+            "step": 5
+          },
+          "timer_seconds": 7,
+          "chart_type": "histogram"
+        },
+        {
+          "question_number": 4,
+          "question_type": "radio",
+          "question_text": "당신의 MBTI는?",
+          "options": [
+            "INTJ/INTP/ENTJ/ENTP",
+            "INFJ/INFP/ENFJ/ENFP", 
+            "ISTJ/ISFJ/ESTJ/ESFJ",
+            "ISTP/ISFP/ESTP/ESFP"
+          ],
+          "constraints": null,
+          "timer_seconds": 10,
+          "chart_type": "donut"
+        },
+        {
+          "question_number": 5,
+          "question_type": "checkbox",
+          "question_text": "가장 기대되는 프로그램은? (최대 3개)",
+          "options": [
+            "찬양과 경배",
+            "말씀 시간",
+            "레크레이션",
+            "퀴즈 시간",
+            "교제 시간",
+            "식사 시간",
+            "자유 시간"
+          ],
+          "constraints": {
+            "max_select": 3,
+            "min_select": 1
+          },
+          "timer_seconds": 10,
+          "chart_type": "bar"
+        }
+      ]
+    },
+    {
+      "session_number": 2,
+      "session_name": "연애 & 관계",
+      "questions": [
+        {
+          "question_number": 6,
+          "question_type": "radio",
+          "question_text": "이상형이 나타났을 때 나는?",
+          "options": ["먼저 다가간다", "신호를 보내며 기다린다", "아무것도 안한다"],
+          "constraints": null,
+          "timer_seconds": 7,
+          "chart_type": "pie"
+        },
+        {
+          "question_number": 7,
+          "question_type": "text",
+          "question_text": "관심 있는 사람에게 보내는 나만의 시그널은?",
+          "options": null,
+          "constraints": {
+            "max_length": 50
+          },
+          "timer_seconds": 20,
+          "chart_type": "word_cloud"
+        },
+        {
+          "question_number": 8,
+          "question_type": "checkbox",
+          "question_text": "연애할 때 가장 중요하게 생각하는 것은? (최대 3개)",
+          "options": [
+            "신앙의 일치",
+            "성격 호환",
+            "외모",
+            "경제력",
+            "유머 감각",
+            "가치관",
+            "소통 능력",
+            "배려심"
+          ],
+          "constraints": {
+            "max_select": 3,
+            "min_select": 1
+          },
+          "timer_seconds": 10,
+          "chart_type": "bar"
+        },
+        {
+          "question_number": 9,
+          "question_type": "radio",
+          "question_text": "교회에 호감 가는 사람이 있나요?",
+          "options": ["있다", "없다", "비밀이다"],
+          "constraints": null,
+          "timer_seconds": 5,
+          "chart_type": "donut"
+        },
+        {
+          "question_number": 10,
+          "question_type": "conditional",
+          "question_text": "그 사람이 지금 여기에 와있나요?",
+          "options": ["있다", "없다", "모르겠다"],
+          "constraints": {
+            "condition": {
+              "question_id": 9,
+              "answer": "있다"
+            }
+          },
+          "timer_seconds": 5,
+          "chart_type": "pie"
+        },
+        {
+          "question_number": 11,
+          "question_type": "radio",
+          "question_text": "이상적인 첫 데이트 장소는?",
+          "options": [
+            "카페에서 대화",
+            "영화관",
+            "맛집 탐방",
+            "공원 산책",
+            "놀이공원"
+          ],
+          "constraints": null,
+          "timer_seconds": 7,
+          "chart_type": "bar"
+        },
+        {
+          "question_number": 12,
+          "question_type": "slider",
+          "question_text": "결혼하고 싶은 나이는?",
+          "options": null,
+          "constraints": {
+            "min_value": 25,
+            "max_value": 40,
+            "step": 1
+          },
+          "timer_seconds": 7,
+          "chart_type": "histogram"
+        },
+        {
+          "question_number": 13,
+          "question_type": "radio",
+          "question_text": "나의 연애 스타일은?",
+          "options": [
+            "집착형 - 매일 연락하고 싶어",
+            "자유형 - 각자 시간도 중요해",
+            "로맨틱형 - 특별한 이벤트를 좋아해",
+            "현실형 - 실용적인 관계를 추구해"
+          ],
+          "constraints": null,
+          "timer_seconds": 7,
+          "chart_type": "donut"
+        }
+      ]
+    },
+    {
+      "session_number": 3,
+      "session_name": "청년부 어워즈",
+      "questions": [
+        {
+          "question_number": 14,
+          "question_type": "dropdown",
+          "question_text": "가장 듬직한 오빠는?",
+          "options": "dynamic_male_participants",
+          "constraints": {
+            "gender_filter": "male"
+          },
+          "timer_seconds": 10,
+          "chart_type": "ranking"
+        },
+        {
+          "question_number": 15,
+          "question_type": "dropdown",
+          "question_text": "가장 듬직한 언니는?",
+          "options": "dynamic_female_participants",
+          "constraints": {
+            "gender_filter": "female"
+          },
+          "timer_seconds": 10,
+          "chart_type": "ranking"
+        },
+        {
+          "question_number": 16,
+          "question_type": "radio",
+          "question_text": "최고의 패셔니스타는?",
+          "options": "dynamic_all_participants",
+          "constraints": null,
+          "timer_seconds": 10,
+          "chart_type": "ranking"
+        },
+        {
+          "question_number": 17,
+          "question_type": "checkbox",
+          "question_text": "가장 잘 어울릴 것 같은 커플은? (2명 선택)",
+          "options": "dynamic_all_participants",
+          "constraints": {
+            "max_select": 2,
+            "min_select": 2
+          },
+          "timer_seconds": 15,
+          "chart_type": "heatmap"
+        },
+        {
+          "question_number": 18,
+          "question_type": "checkbox",
+          "question_text": "같이 사업하면 대박날 조합은? (2명 선택)",
+          "options": "dynamic_all_participants",
+          "constraints": {
+            "max_select": 2,
+            "min_select": 2
+          },
+          "timer_seconds": 15,
+          "chart_type": "heatmap"
+        },
+        {
+          "question_number": 19,
+          "question_type": "radio",
+          "question_text": "나의 고민을 들어줄 1순위는?",
+          "options": "dynamic_all_participants",
+          "constraints": null,
+          "timer_seconds": 10,
+          "chart_type": "ranking"
+        },
+        {
+          "question_number": 20,
+          "question_type": "radio",
+          "question_text": "미래의 목사님이 될 것 같은 사람은?",
+          "options": "dynamic_all_participants",
+          "constraints": null,
+          "timer_seconds": 10,
+          "chart_type": "ranking"
+        },
+        {
+          "question_number": 21,
+          "question_type": "radio",
+          "question_text": "제일 먼저 결혼할 것 같은 사람은?",
+          "options": "dynamic_all_participants",
+          "constraints": null,
+          "timer_seconds": 10,
+          "chart_type": "ranking"
+        },
+        {
+          "question_number": 22,
+          "question_type": "radio",
+          "question_text": "오늘 수련회 MVP는?",
+          "options": "dynamic_all_participants",
+          "constraints": null,
+          "timer_seconds": 10,
+          "chart_type": "ranking"
+        },
+        {
+          "question_number": 23,
+          "question_type": "text",
+          "question_text": "MVP로 선정한 이유는?",
+          "options": null,
+          "constraints": {
+            "max_length": 100
+          },
+          "timer_seconds": 20,
+          "chart_type": "word_cloud"
+        }
+      ]
+    },
+    {
+      "session_number": 4,
+      "session_name": "신앙 & TMI",
+      "questions": [
+        {
+          "question_number": 24,
+          "question_type": "radio",
+          "question_text": "성경 인물 중 한 사람을 만날 수 있다면?",
+          "options": ["다윗", "다니엘", "바울", "베드로", "에스더"],
+          "constraints": null,
+          "timer_seconds": 10,
+          "chart_type": "pie"
+        },
+        {
+          "question_number": 25,
+          "question_type": "slider",
+          "question_text": "나는 몇 % 죄인일까?",
+          "options": null,
+          "constraints": {
+            "min_value": 0,
+            "max_value": 100,
+            "step": 10
+          },
+          "timer_seconds": 10,
+          "chart_type": "histogram"
+        },
+        {
+          "question_number": 26,
+          "question_type": "text",
+          "question_text": "아무도 모르는 나의 비밀 하나는?",
+          "options": null,
+          "constraints": {
+            "max_length": 100
+          },
+          "timer_seconds": 20,
+          "chart_type": "word_cloud"
+        },
+        {
+          "question_number": 27,
+          "question_type": "radio",
+          "question_text": "하루만 초능력을 가진다면?",
+          "options": [
+            "마음 읽기",
+            "순간 이동",
+            "투명 인간",
+            "시간 정지"
+          ],
+          "constraints": null,
+          "timer_seconds": 7,
+          "chart_type": "donut"
+        },
+        {
+          "question_number": 28,
+          "question_type": "checkbox",
+          "question_text": "청년부와 꼭 해보고 싶은 활동은? (최대 5개)",
+          "options": [
+            "해외 단기선교",
+            "국내 선교여행",
+            "캠핑",
+            "체육대회",
+            "성지순례",
+            "봉사활동",
+            "음악회/콘서트",
+            "연합예배",
+            "비전트립"
+          ],
+          "constraints": {
+            "max_select": 5,
+            "min_select": 1
+          },
+          "timer_seconds": 15,
+          "chart_type": "bar"
+        },
+        {
+          "question_number": 29,
+          "question_type": "radio",
+          "question_text": "함께 가고 싶은 선교지는?",
+          "options": [
+            "필리핀",
+            "태국",
+            "몽골",
+            "캄보디아",
+            "인도네시아"
+          ],
+          "constraints": null,
+          "timer_seconds": 10,
+          "chart_type": "pie"
+        },
+        {
+          "question_number": 30,
+          "question_type": "text",
+          "question_text": "청년부에 바라는 점 한 가지는?",
+          "options": null,
+          "constraints": {
+            "max_length": 100
+          },
+          "timer_seconds": 20,
+          "chart_type": "word_cloud"
+        }
+      ]
+    }
+  ],
+  "participants_list": [
+    {"name": "박복음", "gender": "male"},
+    {"name": "유태영", "gender": "male"},
+    {"name": "박하원", "gender": "male"},
+    {"name": "박예원", "gender": "female"},
+    {"name": "김희철", "gender": "male"},
+    {"name": "박화음", "gender": "female"},
+    {"name": "박현주", "gender": "female"},
+    {"name": "유아영", "gender": "female"},
+    {"name": "박고은", "gender": "female"},
+    {"name": "공예훈", "gender": "male"},
+    {"name": "홍경희", "gender": "male"},
+    {"name": "한혜지", "gender": "female"},
+    {"name": "노주현", "gender": "male"},
+    {"name": "이경수", "gender": "male"},
+    {"name": "이정민", "gender": "female"},
+    {"name": "이정의", "gender": "male"},
+    {"name": "방은제", "gender": "male"},
+    {"name": "서승현", "gender": "female"},
+    {"name": "김태우", "gender": "male"},
+    {"name": "김정준", "gender": "male"},
+    {"name": "김경중", "gender": "male"},
+    {"name": "정진우", "gender": "male"},
+    {"name": "배윤성", "gender": "male"},
+    {"name": "이가연", "gender": "female"},
+    {"name": "노주성", "gender": "male"},
+    {"name": "노주열", "gender": "male"},
+    {"name": "김세현", "gender": "female"}
+  ]
+}

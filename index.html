@@ -7,13 +7,19 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#667eea">
-    <title>청년부 설문조사</title>
+    <title>청년부 수련회 퀴즈</title>
     <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
+        <!-- 참여자 버블 바 -->
+        <div class="participants-bar" id="participants-bar">
+            <!-- 동적 생성 -->
+        </div>
+        
         <header>
-            <h1>청년부 설문조사</h1>
+            <h1>🎉 청년부 수련회 퀴즈</h1>
             <div class="status-bar">
                 <span class="question-number">대기 중...</span>
                 <span class="timer" id="timer">--:--</span>
@@ -21,11 +27,49 @@
         </header>
 
         <main>
-            <div id="waiting-screen" class="screen active">
+            <!-- 닉네임 등록 화면 -->
+            <div id="registration-screen" class="screen active">
+                <div class="registration-content">
+                    <h2>👋 환영합니다!</h2>
+                    <p>수련회 퀴즈에 참여하기 위해 정보를 입력해주세요</p>
+                    
+                    <div class="registration-form">
+                        <div class="form-group">
+                            <label>닉네임</label>
+                            <input type="text" id="nickname-input" placeholder="닉네임을 입력하세요" maxlength="10" autocomplete="off">
+                            <span class="input-hint">최대 10자까지 가능합니다</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>성별</label>
+                            <div class="gender-selection">
+                                <button class="gender-btn" data-gender="male">
+                                    <span class="gender-icon">👨</span>
+                                    <span>남성</span>
+                                </button>
+                                <button class="gender-btn" data-gender="female">
+                                    <span class="gender-icon">👩</span>
+                                    <span>여성</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <button id="register-btn" class="submit-btn register-btn" disabled>
+                            시작하기
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="waiting-screen" class="screen">
                 <div class="waiting-content">
                     <div class="loader"></div>
-                    <h2>설문이 곧 시작됩니다</h2>
+                    <h2>퀴즈가 곧 시작됩니다</h2>
                     <p>관리자가 문제를 준비하고 있습니다...</p>
+                    <div class="participant-info">
+                        <span id="my-nickname"></span>
+                        <span id="my-color"></span>
+                    </div>
                 </div>
             </div>
 
@@ -38,6 +82,27 @@
                         </div>
                         <div id="text-answer-container" class="text-answer" style="display: none;">
                             <input type="text" id="text-answer" placeholder="답변을 입력하세요..." maxlength="100">
+                        </div>
+                        <div id="slider-container" class="slider-answer" style="display: none;">
+                            <div class="slider-wrapper">
+                                <input type="range" id="slider-answer" min="0" max="100" value="50">
+                                <div class="slider-value" id="slider-value">50</div>
+                                <div class="slider-labels">
+                                    <span id="slider-min">0</span>
+                                    <span id="slider-max">100</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="emoji-container" class="emoji-answer" style="display: none;">
+                            <!-- 동적 생성 -->
+                        </div>
+                        <div id="dropdown-container" class="dropdown-answer" style="display: none;">
+                            <select id="dropdown-answer">
+                                <!-- 동적 생성 -->
+                            </select>
+                        </div>
+                        <div id="checkbox-container" class="checkbox-answer" style="display: none;">
+                            <!-- 동적 생성 -->
                         </div>
                         <button type="submit" class="submit-btn" id="submit-btn">제출하기</button>
                     </form>
@@ -52,35 +117,59 @@
                     <div class="submitted-info">
                         <p>제출한 답변: <span id="submitted-answer"></span></p>
                     </div>
+                    <div class="quick-stats" id="quick-stats">
+                        <!-- 간단한 통계 표시 -->
+                    </div>
                 </div>
             </div>
 
             <div id="finished-screen" class="screen">
                 <div class="finished-content">
-                    <h2>설문이 종료되었습니다</h2>
+                    <h2>🎊 퀴즈가 종료되었습니다!</h2>
                     <p>참여해 주셔서 감사합니다!</p>
-                    <a href="result.html" class="view-results-btn">결과 보기</a>
+                    <div class="final-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">총 문제</span>
+                            <span class="stat-value" id="total-questions">30</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">답변한 문제</span>
+                            <span class="stat-value" id="answered-questions">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">평균 응답 시간</span>
+                            <span class="stat-value" id="avg-response-time">0초</span>
+                        </div>
+                    </div>
+                    <a href="result.html" class="view-results-btn">전체 결과 보기</a>
                 </div>
             </div>
         </main>
 
         <footer>
-            <p>© 2024 청년부 | 익명 참여</p>
+            <p id="user-info">© 2024 청년부 수련회</p>
         </footer>
+    </div>
+    
+    <!-- 참여자 히스토리 모달 -->
+    <div id="history-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">참여자 정보</h3>
+                <button class="modal-close" onclick="closeHistoryModal()">×</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- 동적 생성 -->
+            </div>
+        </div>
     </div>
 
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- 환경변수 처리 -->
-    <script>
-        // Netlify에서는 process.env를 사용할 수 없으므로 제거
-        // config.js에서 직접 처리
-    </script>
-    
     <!-- 설정 및 앱 스크립트 -->
     <script src="config.js"></script>
-    <script src="app.js"></script>
+    <script src="app-new.js"></script>
     <script>
         // 사용자 화면 초기화
         document.addEventListener('DOMContentLoaded', function() {
