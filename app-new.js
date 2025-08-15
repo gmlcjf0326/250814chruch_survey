@@ -848,24 +848,34 @@ function showWaitingScreen() {
 
 // 대기 화면에 실시간 통계 표시
 function showWaitingScreenWithStats() {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById('waiting-screen').classList.add('active');
+    // 이미 대기 화면이 활성화되어 있으면 화면 전환하지 않음
+    const currentScreen = document.querySelector('.screen.active');
+    const waitingScreen = document.getElementById('waiting-screen');
     
-    // 로더 숨기기
-    const loader = document.querySelector('#waiting-screen .loader');
-    if (loader) {
-        loader.style.display = 'none';
+    if (currentScreen !== waitingScreen) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        waitingScreen.classList.add('active');
     }
-    
-    // 기본 대기 메시지 숨기기
-    const waitingContent = document.querySelector('#waiting-screen .waiting-content h2');
-    const waitingDesc = document.querySelector('#waiting-screen .waiting-content p');
-    if (waitingContent) waitingContent.style.display = 'none';
-    if (waitingDesc) waitingDesc.style.display = 'none';
     
     // 실시간 통계 영역 표시
     const statsDiv = document.getElementById('realtime-stats');
     if (statsDiv) {
+        // 이미 통계를 보고 있으면 화면 요소를 다시 수정하지 않음
+        if (statsDiv.style.display === 'block') {
+            // 이미 통계 화면이 표시 중이면 데이터만 업데이트
+            updateRealtimeStats();
+            return;
+        }
+        
+        // 처음 통계를 표시하는 경우에만 화면 요소 수정
+        const loader = document.querySelector('#waiting-screen .loader');
+        if (loader) loader.style.display = 'none';
+        
+        const waitingContent = document.querySelector('#waiting-screen .waiting-content h2');
+        const waitingDesc = document.querySelector('#waiting-screen .waiting-content p');
+        if (waitingContent) waitingContent.style.display = 'none';
+        if (waitingDesc) waitingDesc.style.display = 'none';
+        
         statsDiv.style.display = 'block';
         
         // 기존 차트가 있으면 제거 (새로운 문제 시작시)

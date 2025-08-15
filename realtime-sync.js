@@ -153,15 +153,7 @@ const RealtimeSync = {
                     }
                 } else if (hasAnswered) {
                     // 이미 답변한 문제면 계속 통계 표시
-                    // 통계를 이미 보고 있으면 아무것도 하지 않음
-                    const statsDiv = document.getElementById('realtime-stats');
-                    if (statsDiv && statsDiv.style.display === 'none') {
-                        // 통계를 보고 있지 않을 때만 통계 화면 표시
-                        if (typeof showWaitingScreenWithStats === 'function') {
-                            showWaitingScreenWithStats();
-                        }
-                    }
-                    // 이미 통계를 보고 있으면 화면 전환하지 않음
+                    // 통계를 이미 보고 있으면 아무것도 하지 않음 - 화면 전환 없음
                     return;
                 }
             } else if (!hasAnswered && currentScreen !== 'question-screen' && currentScreen !== 'submitted-screen') {
