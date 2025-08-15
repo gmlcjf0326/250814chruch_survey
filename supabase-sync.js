@@ -9,12 +9,12 @@ const SupabaseSync = {
     
     // 초기화
     init: async function() {
-        // Supabase 클라이언트 확인
-        if (typeof window.SUPABASE_URL !== 'undefined' && window.SUPABASE_URL) {
+        // Supabase 클라이언트 확인 - config.js의 SUPABASE_CONFIG 사용
+        if (typeof SUPABASE_CONFIG !== 'undefined' && SUPABASE_CONFIG.url && SUPABASE_CONFIG.anonKey) {
             try {
                 this.client = supabase.createClient(
-                    window.SUPABASE_URL,
-                    window.SUPABASE_ANON_KEY
+                    SUPABASE_CONFIG.url,
+                    SUPABASE_CONFIG.anonKey
                 );
                 this.useSupabase = true;
                 console.log('Supabase 실시간 모드 활성화');

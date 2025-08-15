@@ -259,17 +259,26 @@ function updateControlButtons() {
 }
 
 // 퀴즈 시작
-function startQuiz() {
+async function startQuiz() {
     if (confirm('퀴즈를 시작하시겠습니까?')) {
         const state = {
             status: 'active',
             currentSession: 1,
             currentQuestion: 1,
+            current_question: 1,  // Supabase 컬럼명
+            current_session: 1,   // Supabase 컬럼명
             timerEnd: Date.now() + (ADMIN_STATE.questions[0].timer_seconds * 1000),
+            timer_end: new Date(Date.now() + (ADMIN_STATE.questions[0].timer_seconds * 1000)).toISOString(),
             startTime: Date.now()
         };
         
-        localStorage.setItem(STORAGE_KEYS.SURVEY_STATE, JSON.stringify(state));
+        // Supabase 사용 가능한 경우 업데이트
+        if (typeof SupabaseSync !== 'undefined' && SupabaseSync.useSupabase) {
+            await SupabaseSync.updateQuizState(state);
+        } else {
+            localStorage.setItem(STORAGE_KEYS.SURVEY_STATE, JSON.stringify(state));
+        }
+        
         ADMIN_STATE.surveyStatus = 'active';
         ADMIN_STATE.currentSession = 1;
         ADMIN_STATE.currentQuestion = 1;
@@ -281,7 +290,7 @@ function startQuiz() {
 }
 
 // 다음 문제
-function nextQuestion() {
+async function nextQuestion() {
     if (ADMIN_STATE.currentQuestion < ADMIN_STATE.totalQuestions) {
         ADMIN_STATE.currentQuestion++;
         const question = ADMIN_STATE.questions[ADMIN_STATE.currentQuestion - 1];
@@ -290,10 +299,19 @@ function nextQuestion() {
             status: 'active',
             currentSession: question.session_number,
             currentQuestion: ADMIN_STATE.currentQuestion,
-            timerEnd: Date.now() + (question.timer_seconds * 1000)
+            current_question: ADMIN_STATE.currentQuestion,  // Supabase 컬럼명
+            current_session: question.session_number,       // Supabase 컬럼명
+            timerEnd: Date.now() + (question.timer_seconds * 1000),
+            timer_end: new Date(Date.now() + (question.timer_seconds * 1000)).toISOString()
         };
         
-        localStorage.setItem(STORAGE_KEYS.SURVEY_STATE, JSON.stringify(state));
+        // Supabase 사용 가능한 경우 업데이트
+        if (typeof SupabaseSync !== 'undefined' && SupabaseSync.useSupabase) {
+            await SupabaseSync.updateQuizState(state);
+        } else {
+            localStorage.setItem(STORAGE_KEYS.SURVEY_STATE, JSON.stringify(state));
+        }
+        
         ADMIN_STATE.currentSession = question.session_number;
         
         startTimer(question.timer_seconds);
@@ -304,7 +322,7 @@ function nextQuestion() {
 }
 
 // 이전 문제
-function prevQuestion() {
+async function prevQuestion() {
     if (ADMIN_STATE.currentQuestion > 1) {
         ADMIN_STATE.currentQuestion--;
         const question = ADMIN_STATE.questions[ADMIN_STATE.currentQuestion - 1];
@@ -313,10 +331,19 @@ function prevQuestion() {
             status: 'active',
             currentSession: question.session_number,
             currentQuestion: ADMIN_STATE.currentQuestion,
-            timerEnd: Date.now() + (question.timer_seconds * 1000)
+            current_question: ADMIN_STATE.currentQuestion,  // Supabase 컬럼명
+            current_session: question.session_number,       // Supabase 컬럼명
+            timerEnd: Date.now() + (question.timer_seconds * 1000),
+            timer_end: new Date(Date.now() + (question.timer_seconds * 1000)).toISOString()
         };
         
-        localStorage.setItem(STORAGE_KEYS.SURVEY_STATE, JSON.stringify(state));
+        // Supabase 사용 가능한 경우 업데이트
+        if (typeof SupabaseSync !== 'undefined' && SupabaseSync.useSupabase) {
+            await SupabaseSync.updateQuizState(state);
+        } else {
+            localStorage.setItem(STORAGE_KEYS.SURVEY_STATE, JSON.stringify(state));
+        }
+        
         ADMIN_STATE.currentSession = question.session_number;
         
         startTimer(question.timer_seconds);
@@ -327,16 +354,24 @@ function prevQuestion() {
 }
 
 // 퀴즈 종료
-function endQuiz() {
+async function endQuiz() {
     if (confirm('퀴즈를 종료하시겠습니까?')) {
         const state = {
             status: 'finished',
             currentSession: 0,
             currentQuestion: 0,
+            current_question: 0,  // Supabase 컬럼명
+            current_session: 0,   // Supabase 컬럼명
             endTime: Date.now()
         };
         
-        localStorage.setItem(STORAGE_KEYS.SURVEY_STATE, JSON.stringify(state));
+        // Supabase 사용 가능한 경우 업데이트
+        if (typeof SupabaseSync !== 'undefined' && SupabaseSync.useSupabase) {
+            await SupabaseSync.updateQuizState(state);
+        } else {
+            localStorage.setItem(STORAGE_KEYS.SURVEY_STATE, JSON.stringify(state));
+        }
+        
         ADMIN_STATE.surveyStatus = 'finished';
         ADMIN_STATE.currentSession = 0;
         ADMIN_STATE.currentQuestion = 0;

@@ -42,15 +42,23 @@ const RealtimeSync = {
     checkStateUpdate: function() {
         const currentState = JSON.parse(localStorage.getItem('survey_state') || '{}');
         
+        // Supabase와 localStorage 형식 통일
+        const normalizedState = {
+            status: currentState.status,
+            currentQuestion: currentState.currentQuestion || currentState.current_question || 0,
+            currentSession: currentState.currentSession || currentState.current_session || 0,
+            timerEnd: currentState.timerEnd || (currentState.timer_end ? new Date(currentState.timer_end).getTime() : null)
+        };
+        
         // 상태가 변경되었는지 확인
-        if (JSON.stringify(currentState) !== JSON.stringify(this.lastState)) {
-            this.lastState = currentState;
-            this.handleStateChange(currentState);
+        if (JSON.stringify(normalizedState) !== JSON.stringify(this.lastState)) {
+            this.lastState = normalizedState;
+            this.handleStateChange(normalizedState);
         }
         
         // 타이머 업데이트 (활성 상태일 때만)
-        if (currentState.status === 'active' && currentState.timerEnd) {
-            this.updateTimer(currentState.timerEnd);
+        if (normalizedState.status === 'active' && normalizedState.timerEnd) {
+            this.updateTimer(normalizedState.timerEnd);
         }
     },
     

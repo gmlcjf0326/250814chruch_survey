@@ -145,12 +145,19 @@ function setupRegistration() {
         // 참여자 목록에 추가
         const newParticipant = {
             ...APP_STATE.userInfo,
+            user_id: APP_STATE.userInfo.userId,  // Supabase 컬럼명
             joined_at: Date.now(),
             is_active: true
         };
         
-        participants.push(newParticipant);
-        localStorage.setItem(STORAGE_KEYS.PARTICIPANTS, JSON.stringify(participants));
+        // Supabase 사용 가능한 경우 저장
+        if (typeof SupabaseSync !== 'undefined' && SupabaseSync.useSupabase) {
+            await SupabaseSync.registerParticipant(newParticipant);
+        } else {
+            participants.push(newParticipant);
+            localStorage.setItem(STORAGE_KEYS.PARTICIPANTS, JSON.stringify(participants));
+        }
+        
         sessionStorage.setItem(STORAGE_KEYS.USER_INFO, JSON.stringify(APP_STATE.userInfo));
         
         // 참여자 버블 업데이트
@@ -688,11 +695,25 @@ async function handleAnswerSubmit(e) {
     answer.submitted_at = Date.now();
     
     // 응답 저장
-    if (!responses[state.currentQuestion]) {
-        responses[state.currentQuestion] = {};
+    const responseData = {
+        user_id: APP_STATE.userInfo.userId,
+        question_id: state.currentQuestion,
+        answer: answer.answer || answer,
+        answer_text: answer.answer_text || answer.answer || answer,
+        answer_options: answer.answer_options || null,
+        response_time_ms: Date.now() - startTime
+    };
+    
+    // Supabase 사용 가능한 경우 저장
+    if (typeof SupabaseSync !== 'undefined' && SupabaseSync.useSupabase) {
+        await SupabaseSync.saveResponse(responseData);
+    } else {
+        if (!responses[state.currentQuestion]) {
+            responses[state.currentQuestion] = {};
+        }
+        responses[state.currentQuestion][APP_STATE.userInfo.userId] = responseData;
+        localStorage.setItem(STORAGE_KEYS.RESPONSES, JSON.stringify(responses));
     }
-    responses[state.currentQuestion][APP_STATE.userInfo.userId] = answer;
-    localStorage.setItem(STORAGE_KEYS.RESPONSES, JSON.stringify(responses));
     
     // 실시간 업데이트 트리거 (브로드캐스트 이벤트)
     window.dispatchEvent(new CustomEvent('responseUpdated', {
