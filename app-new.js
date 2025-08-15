@@ -351,6 +351,13 @@ function initUserScreen() {
         // 참여자 버블 초기화
         updateParticipantsBubbles();
         
+        // 현재 상태 확인 및 초기화
+        const currentState = JSON.parse(localStorage.getItem(STORAGE_KEYS.SURVEY_STATE) || '{}');
+        if (currentState.currentQuestion || currentState.current_question) {
+            APP_STATE.currentQuestion = currentState.currentQuestion || currentState.current_question;
+            console.log(`초기 문제 번호 설정: ${APP_STATE.currentQuestion}`);
+        }
+        
         // 답변 폼 이벤트
         const form = document.getElementById('answer-form');
         if (form) {
@@ -383,8 +390,17 @@ function checkCondition(condition, responses) {
 
 // 문제 표시
 function showQuestion(question, questionNumber) {
+    // 이미 같은 문제를 표시 중이고 question-screen이 활성화되어 있으면 무시
+    if (APP_STATE.currentQuestion === questionNumber && 
+        document.getElementById('question-screen').classList.contains('active')) {
+        console.log(`문제 ${questionNumber}는 이미 표시 중`);
+        return;
+    }
+    
+    console.log(`새 문제 표시: ${questionNumber}`);
+    
     // 현재 문제 번호 저장
-    APP_STATE.currentQuestion = question.question_id || questionNumber;
+    APP_STATE.currentQuestion = questionNumber;
     
     // 새 문제로 전환되었으므로 상태 초기화
     APP_STATE.hasShownStats = false;

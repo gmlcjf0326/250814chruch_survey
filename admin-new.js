@@ -261,6 +261,8 @@ function updateControlButtons() {
 // 퀴즈 시작
 async function startQuiz() {
     if (confirm('퀴즈를 시작하시겠습니까?')) {
+        console.log('관리자: 퀴즈 시작');
+        
         const state = {
             status: 'active',
             currentSession: 1,
@@ -272,12 +274,20 @@ async function startQuiz() {
             startTime: Date.now()
         };
         
-        // Supabase 사용 가능한 경우 업데이트
+        // localStorage 즉시 업데이트 (동기화 보장)
+        localStorage.setItem(STORAGE_KEYS.SURVEY_STATE, JSON.stringify(state));
+        
+        // Supabase도 업데이트
         if (typeof SupabaseSync !== 'undefined' && SupabaseSync.useSupabase) {
             await SupabaseSync.updateQuizState(state);
-        } else {
-            localStorage.setItem(STORAGE_KEYS.SURVEY_STATE, JSON.stringify(state));
         }
+        
+        // Storage 이벤트 강제 발생 (같은 탭에서도 동작하도록)
+        window.dispatchEvent(new StorageEvent('storage', {
+            key: STORAGE_KEYS.SURVEY_STATE,
+            newValue: JSON.stringify(state),
+            url: window.location.href
+        }));
         
         ADMIN_STATE.surveyStatus = 'active';
         ADMIN_STATE.currentSession = 1;
@@ -295,6 +305,8 @@ async function nextQuestion() {
         ADMIN_STATE.currentQuestion++;
         const question = ADMIN_STATE.questions[ADMIN_STATE.currentQuestion - 1];
         
+        console.log(`관리자: 문제 ${ADMIN_STATE.currentQuestion}로 이동`);
+        
         const state = {
             status: 'active',
             currentSession: question.session_number,
@@ -305,12 +317,20 @@ async function nextQuestion() {
             timer_end: new Date(Date.now() + (question.timer_seconds * 1000)).toISOString()
         };
         
-        // Supabase 사용 가능한 경우 업데이트
+        // localStorage 즉시 업데이트 (동기화 보장)
+        localStorage.setItem(STORAGE_KEYS.SURVEY_STATE, JSON.stringify(state));
+        
+        // Supabase도 업데이트
         if (typeof SupabaseSync !== 'undefined' && SupabaseSync.useSupabase) {
             await SupabaseSync.updateQuizState(state);
-        } else {
-            localStorage.setItem(STORAGE_KEYS.SURVEY_STATE, JSON.stringify(state));
         }
+        
+        // Storage 이벤트 강제 발생 (같은 탭에서도 동작하도록)
+        window.dispatchEvent(new StorageEvent('storage', {
+            key: STORAGE_KEYS.SURVEY_STATE,
+            newValue: JSON.stringify(state),
+            url: window.location.href
+        }));
         
         ADMIN_STATE.currentSession = question.session_number;
         
@@ -327,6 +347,8 @@ async function prevQuestion() {
         ADMIN_STATE.currentQuestion--;
         const question = ADMIN_STATE.questions[ADMIN_STATE.currentQuestion - 1];
         
+        console.log(`관리자: 문제 ${ADMIN_STATE.currentQuestion}로 이동`);
+        
         const state = {
             status: 'active',
             currentSession: question.session_number,
@@ -337,12 +359,20 @@ async function prevQuestion() {
             timer_end: new Date(Date.now() + (question.timer_seconds * 1000)).toISOString()
         };
         
-        // Supabase 사용 가능한 경우 업데이트
+        // localStorage 즉시 업데이트 (동기화 보장)
+        localStorage.setItem(STORAGE_KEYS.SURVEY_STATE, JSON.stringify(state));
+        
+        // Supabase도 업데이트
         if (typeof SupabaseSync !== 'undefined' && SupabaseSync.useSupabase) {
             await SupabaseSync.updateQuizState(state);
-        } else {
-            localStorage.setItem(STORAGE_KEYS.SURVEY_STATE, JSON.stringify(state));
         }
+        
+        // Storage 이벤트 강제 발생 (같은 탭에서도 동작하도록)
+        window.dispatchEvent(new StorageEvent('storage', {
+            key: STORAGE_KEYS.SURVEY_STATE,
+            newValue: JSON.stringify(state),
+            url: window.location.href
+        }));
         
         ADMIN_STATE.currentSession = question.session_number;
         

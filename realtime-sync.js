@@ -92,80 +92,76 @@ const RealtimeSync = {
             return;
         }
         
-        // 사용자가 답변 중인 경우 화면 전환하지 않음
-        if (currentScreen === 'question-screen') {
-            // 현재 문제가 변경되었는지 확인
-            if (APP_STATE.currentQuestion !== state.currentQuestion) {
-                // 문제가 변경된 경우에만 처리
-                const responses = JSON.parse(localStorage.getItem('survey_responses') || '{}');
-                const hasAnswered = responses[state.currentQuestion] && 
-                                   responses[state.currentQuestion][APP_STATE.userInfo.userId];
-                
-                if (!hasAnswered && state.status === 'active' && state.currentQuestion) {
-                    // 새 문제로 전환
-                    if (typeof displayQuestion === 'function') {
-                        displayQuestion(state.currentQuestion);
-                    } else if (typeof showQuestion === 'function') {
-                        // 새 문제 표시
-                        const questionData = APP_STATE.questions ? 
-                            APP_STATE.questions[state.currentQuestion - 1] : null;
-                        if (questionData) {
-                            showQuestion(questionData, state.currentQuestion);
-                        }
-                    }
-                } else if (hasAnswered) {
-                    // 이미 답변한 문제면 통계 화면으로
-                    // 이미 통계를 본 적이 있으면 화면 전환하지 않음
-                    if (!APP_STATE.hasShownStats && typeof showWaitingScreenWithStats === 'function') {
-                        APP_STATE.hasShownStats = true;
-                        showWaitingScreenWithStats();
-                    }
-                }
-            }
-            // 같은 문제를 보고 있는 중이면 화면 전환하지 않음
-            return;
-        }
+        // 문제 번호가 변경되었는지 확인 (핵심 로직)
+        const questionChanged = state.currentQuestion && 
+                              state.currentQuestion !== APP_STATE.currentQuestion;
         
-        if (state.status === 'waiting' || !state.currentQuestion) {
-            // 대기 상태 - 이미 대기 화면이면 화면 전환하지 않음
-            if (currentScreen !== 'waiting-screen' && currentScreen !== 'submitted-screen') {
-                this.showWaitingScreen('퀴즈가 곧 시작됩니다', '관리자가 문제를 준비하고 있습니다...');
-            }
-            // 이미 대기 화면이면 아무것도 하지 않음
-            return;
-        } else if (state.status === 'active' && state.currentQuestion) {
-            // 활성 상태 - 새 문제 확인
+        if (questionChanged) {
+            console.log(`문제 변경 감지: ${APP_STATE.currentQuestion} → ${state.currentQuestion}`);
+            
+            // 응답 여부 확인
             const responses = JSON.parse(localStorage.getItem('survey_responses') || '{}');
             const hasAnswered = responses[state.currentQuestion] && 
                                responses[state.currentQuestion][APP_STATE.userInfo.userId];
             
-            // 대기 화면에서 문제가 변경되었는지 확인
-            if (currentScreen === 'waiting-screen') {
-                // 현재 보고 있던 문제와 다른 새 문제인지 확인
-                if (!hasAnswered && APP_STATE.currentQuestion !== state.currentQuestion) {
-                    // 새 문제로 전환
-                    APP_STATE.currentQuestion = state.currentQuestion;
-                    
-                    // 통계 업데이트 중지
-                    if (APP_STATE.statsUpdateInterval) {
-                        clearInterval(APP_STATE.statsUpdateInterval);
-                        APP_STATE.statsUpdateInterval = null;
+            if (!hasAnswered && state.status === 'active') {
+                // 새 문제 표시
+                APP_STATE.currentQuestion = state.currentQuestion;
+                APP_STATE.hasShownStats = false;
+                
+                if (typeof showQuestion === 'function') {
+                    const questionData = APP_STATE.questions ? 
+                        APP_STATE.questions[state.currentQuestion - 1] : null;
+                    if (questionData) {
+                        showQuestion(questionData, state.currentQuestion);
                     }
+                }
+            } else if (hasAnswered) {
+                // 이미 답변한 문제면 통계 표시
+                APP_STATE.currentQuestion = state.currentQuestion;
+                if (typeof showWaitingScreenWithStats === 'function') {
+                    showWaitingScreenWithStats();
+                }
+            }
+            return;
+        }
+        
+        // 초기 화면이거나 대기 상태
+        if (state.status === 'waiting' || !state.currentQuestion) {
+            if (currentScreen !== 'waiting-screen' && currentScreen !== 'submitted-screen') {
+                this.showWaitingScreen('퀴즈가 곧 시작됩니다', '관리자가 문제를 준비하고 있습니다...');
+            }
+            return;
+        }
+        
+        // 퀴즈 활성 상태
+        if (state.status === 'active' && state.currentQuestion) {
+            const responses = JSON.parse(localStorage.getItem('survey_responses') || '{}');
+            const hasAnswered = responses[state.currentQuestion] && 
+                               responses[state.currentQuestion][APP_STATE.userInfo.userId];
+            
+            // 현재 화면 상태별 처리
+            if (currentScreen === 'waiting-screen' || currentScreen === 'submitted-screen') {
+                // 대기/제출 화면에서 새 문제 확인
+                if (!hasAnswered) {
+                    // 답변하지 않은 새 문제 표시
+                    APP_STATE.currentQuestion = state.currentQuestion;
+                    APP_STATE.hasShownStats = false;
                     
                     if (typeof showQuestion === 'function') {
                         const questionData = APP_STATE.questions ? 
                             APP_STATE.questions[state.currentQuestion - 1] : null;
                         if (questionData) {
+                            console.log(`대기 화면에서 새 문제 ${state.currentQuestion}로 전환`);
                             showQuestion(questionData, state.currentQuestion);
                         }
                     }
-                } else if (hasAnswered) {
-                    // 이미 답변한 문제면 계속 통계 표시
-                    // 통계를 이미 보고 있으면 아무것도 하지 않음 - 화면 전환 없음
-                    return;
                 }
-            } else if (!hasAnswered && currentScreen !== 'question-screen' && currentScreen !== 'submitted-screen') {
-                // 새 문제 표시
+                // hasAnswered인 경우는 통계 화면 유지
+            } else if (currentScreen !== 'question-screen' && !hasAnswered) {
+                // 다른 화면에서 답변 안한 문제 표시
+                APP_STATE.currentQuestion = state.currentQuestion;
+                
                 if (typeof showQuestion === 'function') {
                     const questionData = APP_STATE.questions ? 
                         APP_STATE.questions[state.currentQuestion - 1] : null;
