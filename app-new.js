@@ -721,6 +721,7 @@ async function handleAnswerSubmit(e) {
     
     if (!answer) {
         alert('답변을 선택해주세요.');
+        APP_STATE.isSubmitting = false;
         return;
     }
     
@@ -800,19 +801,58 @@ function showSubmittedScreen(answerText) {
     // 대기 화면으로 전환하면서 실시간 통계 표시
     setTimeout(() => {
         showWaitingScreenWithStats();
-    }, 2000); // 2초 후 대기 화면으로 전환
+    }, 3000); // 3초 후 통계 화면으로 전환
 }
 
 // 대기 화면
 function showWaitingScreen() {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('waiting-screen').classList.add('active');
+    
+    // 통계 업데이트 중지
+    if (APP_STATE.statsUpdateInterval) {
+        clearInterval(APP_STATE.statsUpdateInterval);
+        APP_STATE.statsUpdateInterval = null;
+    }
+    
+    // 로더와 메시지 다시 표시
+    const loader = document.querySelector('#waiting-screen .loader');
+    if (loader) loader.style.display = 'block';
+    
+    const waitingContent = document.querySelector('#waiting-screen .waiting-content h2');
+    const waitingDesc = document.querySelector('#waiting-screen .waiting-content p');
+    if (waitingContent) {
+        waitingContent.style.display = 'block';
+        waitingContent.textContent = '퀴즈가 곧 시작됩니다';
+    }
+    if (waitingDesc) {
+        waitingDesc.style.display = 'block';
+        waitingDesc.textContent = '관리자가 문제를 준비하고 있습니다...';
+    }
+    
+    // 실시간 통계 숨기기
+    const statsDiv = document.getElementById('realtime-stats');
+    if (statsDiv) {
+        statsDiv.style.display = 'none';
+    }
 }
 
 // 대기 화면에 실시간 통계 표시
 function showWaitingScreenWithStats() {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('waiting-screen').classList.add('active');
+    
+    // 로더 숨기기
+    const loader = document.querySelector('#waiting-screen .loader');
+    if (loader) {
+        loader.style.display = 'none';
+    }
+    
+    // 기본 대기 메시지 숨기기
+    const waitingContent = document.querySelector('#waiting-screen .waiting-content h2');
+    const waitingDesc = document.querySelector('#waiting-screen .waiting-content p');
+    if (waitingContent) waitingContent.style.display = 'none';
+    if (waitingDesc) waitingDesc.style.display = 'none';
     
     // 실시간 통계 영역 표시
     const statsDiv = document.getElementById('realtime-stats');
@@ -825,6 +865,8 @@ function showWaitingScreenWithStats() {
             clearInterval(APP_STATE.statsUpdateInterval);
         }
         APP_STATE.statsUpdateInterval = setInterval(updateRealtimeStats, 2000); // 2초마다 업데이트
+    } else {
+        console.error('realtime-stats div not found');
     }
 }
 
@@ -835,12 +877,18 @@ function updateRealtimeStats() {
     const participants = JSON.parse(localStorage.getItem(STORAGE_KEYS.PARTICIPANTS) || '[]');
     
     if (!state.currentQuestion || state.currentQuestion === 0) {
+        console.log('No current question to show stats for');
         return;
     }
     
-    // 현재 문제 정보
-    const questionData = quizData.find(q => q.question_id === state.currentQuestion);
-    if (!questionData) return;
+    // 현재 문제 정보 - APP_STATE.questions 배열에서 찾기
+    const questionData = APP_STATE.questions ? 
+        APP_STATE.questions[state.currentQuestion - 1] : null;
+    
+    if (!questionData) {
+        console.log('Question data not found for question:', state.currentQuestion);
+        return;
+    }
     
     // 통계 정보 업데이트
     document.getElementById('stats-question-num').textContent = `Q${state.currentQuestion}`;
@@ -1028,3 +1076,5 @@ window.addEventListener('beforeunload', () => {
 
 // 전역 함수로 내보내기
 window.initUserScreen = initUserScreen;
+window.showWaitingScreenWithStats = showWaitingScreenWithStats;
+window.showQuestion = showQuestion;

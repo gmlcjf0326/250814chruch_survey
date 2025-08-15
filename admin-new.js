@@ -460,7 +460,13 @@ async function resetData() {
         updateStatusDisplay();
         updateControlButtons();
         updateParticipantsBubbles();
-        updateRealtimeChart();
+        
+        // 차트 초기화
+        if (ADMIN_STATE.realTimeChart) {
+            ADMIN_STATE.realTimeChart.data.labels = [];
+            ADMIN_STATE.realTimeChart.data.datasets[0].data = [];
+            ADMIN_STATE.realTimeChart.update();
+        }
         
         // 성공 메시지
         alert('✅ 모든 데이터가 성공적으로 초기화되었습니다.\n\n새로운 퀴즈를 시작할 수 있습니다.');
