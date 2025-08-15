@@ -848,33 +848,42 @@ function showWaitingScreen() {
 
 // 대기 화면에 실시간 통계 표시
 function showWaitingScreenWithStats() {
-    // 이미 대기 화면이 활성화되어 있으면 화면 전환하지 않음
+    const statsDiv = document.getElementById('realtime-stats');
+    
+    // 이미 통계를 보고 있으면 아무것도 하지 않음
+    if (statsDiv && statsDiv.style.display === 'block') {
+        return;
+    }
+    
+    // 화면 전환이 필요한 경우만 처리
     const currentScreen = document.querySelector('.screen.active');
     const waitingScreen = document.getElementById('waiting-screen');
     
+    // 대기 화면이 아닌 경우에만 전환
     if (currentScreen !== waitingScreen) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        // 현재 화면만 비활성화
+        if (currentScreen) {
+            currentScreen.classList.remove('active');
+        }
         waitingScreen.classList.add('active');
     }
     
-    // 실시간 통계 영역 표시
-    const statsDiv = document.getElementById('realtime-stats');
+    // 통계 영역 표시 (한 번만 실행)
     if (statsDiv) {
-        // 이미 통계를 보고 있으면 화면 요소를 다시 수정하지 않음
-        if (statsDiv.style.display === 'block') {
-            // 이미 통계 화면이 표시 중이면 데이터만 업데이트
-            updateRealtimeStats();
-            return;
-        }
-        
-        // 처음 통계를 표시하는 경우에만 화면 요소 수정
+        // 로더와 메시지 숨기기 (한 번만)
         const loader = document.querySelector('#waiting-screen .loader');
-        if (loader) loader.style.display = 'none';
-        
         const waitingContent = document.querySelector('#waiting-screen .waiting-content h2');
         const waitingDesc = document.querySelector('#waiting-screen .waiting-content p');
-        if (waitingContent) waitingContent.style.display = 'none';
-        if (waitingDesc) waitingDesc.style.display = 'none';
+        
+        if (loader && loader.style.display !== 'none') {
+            loader.style.display = 'none';
+        }
+        if (waitingContent && waitingContent.style.display !== 'none') {
+            waitingContent.style.display = 'none';
+        }
+        if (waitingDesc && waitingDesc.style.display !== 'none') {
+            waitingDesc.style.display = 'none';
+        }
         
         statsDiv.style.display = 'block';
         
@@ -935,15 +944,30 @@ function updateRealtimeStats(forceUpdate = false) {
     // 응답 수 저장
     APP_STATE.lastResponseCount = totalResponses;
     
-    // 통계 정보 업데이트
-    document.getElementById('stats-question-num').textContent = `Q${state.currentQuestion}`;
-    document.getElementById('stats-question-text').textContent = questionData.question_text;
+    // 통계 정보 업데이트 (값이 변경된 경우만)
+    const questionNumElem = document.getElementById('stats-question-num');
+    const questionTextElem = document.getElementById('stats-question-text');
+    
+    if (questionNumElem && questionNumElem.textContent !== `Q${state.currentQuestion}`) {
+        questionNumElem.textContent = `Q${state.currentQuestion}`;
+    }
+    if (questionTextElem && questionTextElem.textContent !== questionData.question_text) {
+        questionTextElem.textContent = questionData.question_text;
+    }
     
     const totalParticipants = participants.length;
     const responseRate = totalParticipants > 0 ? Math.round((totalResponses / totalParticipants) * 100) : 0;
     
-    document.getElementById('total-responses').textContent = totalResponses;
-    document.getElementById('response-rate').textContent = responseRate;
+    // 값이 변경된 경우만 DOM 업데이트
+    const totalResponsesElem = document.getElementById('total-responses');
+    const responseRateElem = document.getElementById('response-rate');
+    
+    if (totalResponsesElem && totalResponsesElem.textContent !== totalResponses.toString()) {
+        totalResponsesElem.textContent = totalResponses;
+    }
+    if (responseRateElem && responseRateElem.textContent !== responseRate.toString()) {
+        responseRateElem.textContent = responseRate;
+    }
     
     // 답변별 통계 계산
     const answerStats = {};
@@ -978,27 +1002,34 @@ function updateRealtimeStats(forceUpdate = false) {
         updateWaitingChart(answerStats, questionData);
     }
     
-    // 요약 통계 표시
+    // 요약 통계 표시 (데이터가 변경된 경우만)
     const summaryDiv = document.getElementById('stats-summary');
-    if (Object.keys(answerStats).length > 0) {
+    if (summaryDiv && Object.keys(answerStats).length > 0) {
         const sortedStats = Object.entries(answerStats).sort((a, b) => b[1] - a[1]);
-        let summaryHTML = '<div class="stats-options">';
+        const newStatsKey = JSON.stringify(sortedStats);
         
-        sortedStats.forEach(([option, count]) => {
-            const percentage = totalResponses > 0 ? Math.round((count / totalResponses) * 100) : 0;
-            summaryHTML += `
-                <div class="stat-option">
-                    <span class="option-text">${option}</span>
-                    <div class="option-bar">
-                        <div class="option-fill" style="width: ${percentage}%"></div>
+        // 이전 통계와 다른 경우만 업데이트
+        if (APP_STATE.lastSummaryKey !== newStatsKey) {
+            APP_STATE.lastSummaryKey = newStatsKey;
+            
+            let summaryHTML = '<div class="stats-options">';
+            
+            sortedStats.forEach(([option, count]) => {
+                const percentage = totalResponses > 0 ? Math.round((count / totalResponses) * 100) : 0;
+                summaryHTML += `
+                    <div class="stat-option">
+                        <span class="option-text">${option}</span>
+                        <div class="option-bar">
+                            <div class="option-fill" style="width: ${percentage}%"></div>
+                        </div>
+                        <span class="option-count">${count}명 (${percentage}%)</span>
                     </div>
-                    <span class="option-count">${count}명 (${percentage}%)</span>
-                </div>
-            `;
-        });
-        
-        summaryHTML += '</div>';
-        summaryDiv.innerHTML = summaryHTML;
+                `;
+            });
+            
+            summaryHTML += '</div>';
+            summaryDiv.innerHTML = summaryHTML;
+        }
     }
 }
 

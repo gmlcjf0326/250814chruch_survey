@@ -187,11 +187,15 @@ main {
 /* Screens */
 .screen {
     display: none;
-    animation: fadeIn var(--transition-base);
 }
 
 .screen.active {
     display: block;
+}
+
+/* 통계 화면은 애니메이션 없음 */
+#waiting-screen.active #realtime-stats {
+    animation: none;
 }
 
 @keyframes fadeIn {
