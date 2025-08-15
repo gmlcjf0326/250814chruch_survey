@@ -858,13 +858,24 @@ function showWaitingScreenWithStats() {
     const statsDiv = document.getElementById('realtime-stats');
     if (statsDiv) {
         statsDiv.style.display = 'block';
+        
+        // 기존 차트가 있으면 제거 (새로운 문제 시작시)
+        if (APP_STATE.waitingChart && APP_STATE.lastStatsQuestion !== APP_STATE.currentQuestion) {
+            APP_STATE.waitingChart.destroy();
+            APP_STATE.waitingChart = null;
+        }
+        
+        // 현재 문제 번호 저장
+        APP_STATE.lastStatsQuestion = APP_STATE.currentQuestion;
+        
+        // 통계 업데이트
         updateRealtimeStats();
         
         // 실시간 업데이트 시작
         if (APP_STATE.statsUpdateInterval) {
             clearInterval(APP_STATE.statsUpdateInterval);
         }
-        APP_STATE.statsUpdateInterval = setInterval(updateRealtimeStats, 2000); // 2초마다 업데이트
+        APP_STATE.statsUpdateInterval = setInterval(updateRealtimeStats, 3000); // 3초마다 업데이트
     } else {
         console.error('realtime-stats div not found');
     }
@@ -959,13 +970,6 @@ function updateWaitingChart(answerStats, questionData) {
     const canvas = document.getElementById('waiting-chart');
     if (!canvas) return;
     
-    const ctx = canvas.getContext('2d');
-    
-    // 기존 차트 제거
-    if (APP_STATE.waitingChart) {
-        APP_STATE.waitingChart.destroy();
-    }
-    
     const labels = Object.keys(answerStats);
     const data = Object.values(answerStats);
     
@@ -974,6 +978,22 @@ function updateWaitingChart(answerStats, questionData) {
     // 차트 타입 결정
     const chartType = questionData.question_type === 'voting' ? 'bar' : 
                      labels.length <= 5 ? 'pie' : 'bar';
+    
+    // 기존 차트가 있고 데이터만 업데이트 가능한 경우
+    if (APP_STATE.waitingChart && APP_STATE.waitingChart.config.type === chartType) {
+        // 데이터만 업데이트 (애니메이션 없이)
+        APP_STATE.waitingChart.data.labels = labels;
+        APP_STATE.waitingChart.data.datasets[0].data = data;
+        APP_STATE.waitingChart.update('none'); // 애니메이션 없이 업데이트
+        return;
+    }
+    
+    // 차트 타입이 변경되었거나 처음 생성하는 경우
+    if (APP_STATE.waitingChart) {
+        APP_STATE.waitingChart.destroy();
+    }
+    
+    const ctx = canvas.getContext('2d');
     
     APP_STATE.waitingChart = new Chart(ctx, {
         type: chartType,
@@ -992,6 +1012,9 @@ function updateWaitingChart(answerStats, questionData) {
         options: {
             responsive: true,
             maintainAspectRatio: true,
+            animation: {
+                duration: 500 // 첫 생성시만 애니메이션
+            },
             plugins: {
                 legend: {
                     display: chartType === 'pie',
