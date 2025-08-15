@@ -88,19 +88,8 @@ async function loadQuizData() {
 
 // 관리자 화면 초기화
 function initAdminScreen() {
-    // 간단한 관리자 인증
-    const adminPassword = localStorage.getItem('admin_authenticated');
-    const sessionAuth = sessionStorage.getItem('admin_session');
-    
-    if (!sessionAuth) {
-        const password = prompt('관리자 비밀번호를 입력하세요:');
-        if (password !== '2025youth') {
-            alert('비밀번호가 틀렸습니다.');
-            window.location.href = 'index.html';
-            return;
-        }
-        sessionStorage.setItem('admin_session', 'true');
-    }
+    // 비밀번호 인증 제거 - 바로 관리자 화면 진입
+    console.log('관리자 화면 초기화');
     
     // 퀴즈 데이터 로드
     loadQuizData().then(success => {
