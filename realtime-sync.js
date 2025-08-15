@@ -26,7 +26,7 @@ const RealtimeSync = {
         
         this.syncInterval = setInterval(() => {
             this.checkStateUpdate();
-        }, 500); // 0.5초마다 체크
+        }, 1000); // 1초마다 체크
     },
     
     // Storage 변경 감지
@@ -79,9 +79,37 @@ const RealtimeSync = {
         
         const currentScreen = document.querySelector('.screen.active')?.id;
         
+        // 제출 중이면 화면 전환하지 않음
+        if (APP_STATE.isSubmitting) {
+            return;
+        }
+        
+        // 사용자가 답변 중인 경우 화면 전환하지 않음
+        if (currentScreen === 'question-screen') {
+            // 현재 문제가 변경되었는지 확인
+            if (APP_STATE.currentQuestion !== state.currentQuestion) {
+                // 문제가 변경된 경우에만 처리
+                const responses = JSON.parse(localStorage.getItem('survey_responses') || '{}');
+                const hasAnswered = responses[state.currentQuestion] && 
+                                   responses[state.currentQuestion][APP_STATE.userInfo.userId];
+                
+                if (!hasAnswered && state.status === 'active' && state.currentQuestion) {
+                    // 새 문제로 전환
+                    if (typeof displayQuestion === 'function') {
+                        displayQuestion(state.currentQuestion);
+                    }
+                } else if (hasAnswered) {
+                    // 이미 답변한 문제면 대기 화면으로
+                    this.showWaitingScreen('답변 제출 완료!', '다음 문제를 기다리고 있습니다...');
+                }
+            }
+            // 같은 문제를 보고 있는 중이면 화면 전환하지 않음
+            return;
+        }
+        
         if (state.status === 'waiting' || !state.currentQuestion) {
             // 대기 상태
-            if (currentScreen !== 'waiting-screen') {
+            if (currentScreen !== 'waiting-screen' && currentScreen !== 'submitted-screen') {
                 this.showWaitingScreen('퀴즈가 곧 시작됩니다', '관리자가 문제를 준비하고 있습니다...');
             }
         } else if (state.status === 'active' && state.currentQuestion) {
@@ -90,12 +118,14 @@ const RealtimeSync = {
             const hasAnswered = responses[state.currentQuestion] && 
                                responses[state.currentQuestion][APP_STATE.userInfo.userId];
             
-            if (!hasAnswered && currentScreen !== 'question-screen') {
+            if (!hasAnswered && currentScreen !== 'question-screen' && currentScreen !== 'submitted-screen') {
                 // 새 문제 표시
-                if (typeof showQuestion === 'function') {
+                if (typeof displayQuestion === 'function') {
+                    displayQuestion(state.currentQuestion);
+                } else if (typeof showQuestion === 'function') {
                     showQuestion(state.currentQuestion);
                 }
-            } else if (hasAnswered && currentScreen === 'question-screen') {
+            } else if (hasAnswered && currentScreen !== 'waiting-screen' && currentScreen !== 'submitted-screen') {
                 // 답변 완료 - 대기 화면으로
                 this.showWaitingScreen('답변 제출 완료!', '다음 문제를 기다리고 있습니다...');
             }

@@ -361,24 +361,113 @@ function endQuiz() {
 }
 
 // 데이터 초기화
-function resetData() {
-    if (confirm('모든 데이터를 초기화하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')) {
+async function resetData() {
+    const confirmMsg = '모든 데이터를 초기화하시겠습니까?\n\n' +
+                      '삭제될 내용:\n' +
+                      '- 모든 참여자 정보\n' +
+                      '- 모든 응답 데이터\n' +
+                      '- 활동 로그\n' +
+                      '- 현재 퀴즈 상태\n\n' +
+                      '이 작업은 되돌릴 수 없습니다!';
+    
+    if (!confirm(confirmMsg)) {
+        return;
+    }
+    
+    // 두 번째 확인
+    if (!confirm('정말로 모든 데이터를 삭제하시겠습니까?')) {
+        return;
+    }
+    
+    try {
+        // Supabase 사용 가능한 경우
+        if (typeof SupabaseSync !== 'undefined' && SupabaseSync.useSupabase && SupabaseSync.client) {
+            console.log('Supabase에서 데이터 삭제 중...');
+            
+            // 모든 테이블 데이터 삭제 (테이블 구조는 유지)
+            const { error: logsError } = await SupabaseSync.client
+                .from('activity_logs')
+                .delete()
+                .neq('id', '00000000-0000-0000-0000-000000000000'); // 모든 행 삭제
+            
+            const { error: responsesError } = await SupabaseSync.client
+                .from('responses')
+                .delete()
+                .neq('id', '00000000-0000-0000-0000-000000000000');
+            
+            const { error: participantsError } = await SupabaseSync.client
+                .from('participants')
+                .delete()
+                .neq('id', '00000000-0000-0000-0000-000000000000');
+            
+            // 기존 survey_state 삭제
+            const { error: stateDeleteError } = await SupabaseSync.client
+                .from('survey_state')
+                .delete()
+                .neq('id', '00000000-0000-0000-0000-000000000000');
+            
+            // 새로운 초기 상태 삽입
+            const { error: stateInsertError } = await SupabaseSync.client
+                .from('survey_state')
+                .insert({
+                    current_question: 0,
+                    status: 'waiting',
+                    timer_end: null,
+                    current_session: 0,
+                    is_result_visible: false
+                });
+            
+            if (logsError || responsesError || participantsError || stateDeleteError || stateInsertError) {
+                console.error('Supabase 초기화 오류:', {
+                    logsError,
+                    responsesError,
+                    participantsError,
+                    stateDeleteError,
+                    stateInsertError
+                });
+                alert('Supabase 데이터 초기화 중 일부 오류가 발생했습니다. 콘솔을 확인하세요.');
+            } else {
+                console.log('Supabase 데이터 초기화 완료');
+            }
+        }
+        
+        // LocalStorage 초기화
         localStorage.removeItem(STORAGE_KEYS.SURVEY_STATE);
         localStorage.removeItem(STORAGE_KEYS.RESPONSES);
         localStorage.removeItem(STORAGE_KEYS.PARTICIPANTS);
+        localStorage.removeItem('activity_logs');
         
+        // 관리자 상태 초기화
         ADMIN_STATE.surveyStatus = 'waiting';
         ADMIN_STATE.currentSession = 0;
         ADMIN_STATE.currentQuestion = 0;
         ADMIN_STATE.participants = [];
         ADMIN_STATE.responses = {};
         
+        // 초기 상태 설정
+        const initialState = {
+            status: 'waiting',
+            currentQuestion: 0,
+            currentSession: 0,
+            timerEnd: null,
+            startTime: null,
+            endTime: null
+        };
+        localStorage.setItem(STORAGE_KEYS.SURVEY_STATE, JSON.stringify(initialState));
+        
+        // UI 업데이트
         clearInterval(ADMIN_STATE.timerInterval);
         updateStatusDisplay();
         updateControlButtons();
         updateParticipantsBubbles();
+        updateRealtimeChart();
         
-        alert('데이터가 초기화되었습니다.');
+        // 성공 메시지
+        alert('✅ 모든 데이터가 성공적으로 초기화되었습니다.\n\n새로운 퀴즈를 시작할 수 있습니다.');
+        
+    } catch (error) {
+        console.error('데이터 초기화 중 오류:', error);
+        alert('데이터 초기화 중 오류가 발생했습니다.\n콘솔에서 자세한 내용을 확인하세요.');
     }
 }
 

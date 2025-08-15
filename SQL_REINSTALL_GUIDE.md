@@ -32,10 +32,13 @@ DROP VIEW IF EXISTS session_results CASCADE;
 ```
 
 ### 3단계: 새 테이블 설치
-이제 새로운 테이블과 구조를 설치합니다. `install-60-questions.sql` 파일의 내용을 SQL Editor에 복사하여 실행합니다.
+이제 새로운 테이블과 구조를 설치합니다. 
 
-또는 다음 순서대로 SQL 파일들을 실행합니다:
+**방법 1: 분리된 SQL 파일 사용 (권장)**
+1. **테이블 삭제**: `drop-tables.sql` 실행
+2. **테이블 생성 및 초기 데이터**: `create-tables-with-data.sql` 실행
 
+**방법 2: 기존 파일 사용**
 1. **기본 테이블 생성**: `install-60-questions.sql` 실행
 2. **실시간 기능 설정**: `supabase-realtime-setup.sql` 실행
 
@@ -86,12 +89,12 @@ INSERT INTO survey_state (
     current_question,
     status,
     timer_end,
-    metadata
+    current_session
 ) VALUES (
     0,
     'waiting',
     NULL,
-    '{"session": 0, "total_questions": 60}'::jsonb
+    0
 ) ON CONFLICT DO NOTHING;
 ```
 

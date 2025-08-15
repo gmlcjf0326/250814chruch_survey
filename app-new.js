@@ -428,6 +428,9 @@ function checkCondition(condition, responses) {
 
 // 문제 표시
 function showQuestion(question, questionNumber) {
+    // 현재 문제 번호 저장
+    APP_STATE.currentQuestion = question.question_id || questionNumber;
+    
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('question-screen').classList.add('active');
     
@@ -644,17 +647,29 @@ function showDropdown(question) {
 async function handleAnswerSubmit(e) {
     e.preventDefault();
     
+    // 이미 제출 중이면 무시
+    if (APP_STATE.isSubmitting) {
+        return;
+    }
+    
+    // 제출 중 플래그 설정
+    APP_STATE.isSubmitting = true;
+    
     const state = JSON.parse(localStorage.getItem(STORAGE_KEYS.SURVEY_STATE) || '{}');
     const responses = JSON.parse(localStorage.getItem(STORAGE_KEYS.RESPONSES) || '{}');
     
     // 이미 답변한 경우 체크
     if (responses[state.currentQuestion]?.[APP_STATE.userInfo.userId]) {
         alert('이미 답변하셨습니다.');
+        APP_STATE.isSubmitting = false;
         return;
     }
     
     const questionData = APP_STATE.questions[state.currentQuestion - 1];
-    if (!questionData) return;
+    if (!questionData) {
+        APP_STATE.isSubmitting = false;
+        return;
+    }
     
     let answer = null;
     const startTime = Date.now();
@@ -752,6 +767,9 @@ async function handleAnswerSubmit(e) {
 
 // 제출 완료 화면
 function showSubmittedScreen(answerText) {
+    // 제출 플래그 해제
+    APP_STATE.isSubmitting = false;
+    
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('submitted-screen').classList.add('active');
     
