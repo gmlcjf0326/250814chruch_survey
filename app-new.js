@@ -868,21 +868,24 @@ function showWaitingScreenWithStats() {
         // 현재 문제 번호 저장
         APP_STATE.lastStatsQuestion = APP_STATE.currentQuestion;
         
-        // 통계 업데이트
-        updateRealtimeStats();
+        // 응답 수 초기화 (새로운 통계 표시 시작)
+        APP_STATE.lastResponseCount = -1;
         
-        // 실시간 업데이트 시작
+        // 통계 업데이트 (처음엔 강제 업데이트)
+        updateRealtimeStats(true);
+        
+        // 실시간 업데이트 시작 - 주기적 체크
         if (APP_STATE.statsUpdateInterval) {
             clearInterval(APP_STATE.statsUpdateInterval);
         }
-        APP_STATE.statsUpdateInterval = setInterval(updateRealtimeStats, 3000); // 3초마다 업데이트
+        APP_STATE.statsUpdateInterval = setInterval(updateRealtimeStats, 5000); // 5초마다 체크 (변경시에만 업데이트됨)
     } else {
         console.error('realtime-stats div not found');
     }
 }
 
 // 실시간 통계 업데이트
-function updateRealtimeStats() {
+function updateRealtimeStats(forceUpdate = false) {
     const state = JSON.parse(localStorage.getItem(STORAGE_KEYS.SURVEY_STATE) || '{}');
     const responses = JSON.parse(localStorage.getItem(STORAGE_KEYS.RESPONSES) || '{}');
     const participants = JSON.parse(localStorage.getItem(STORAGE_KEYS.PARTICIPANTS) || '[]');
@@ -901,12 +904,22 @@ function updateRealtimeStats() {
         return;
     }
     
+    const currentResponses = responses[state.currentQuestion] || {};
+    const totalResponses = Object.keys(currentResponses).length;
+    
+    // 응답 수가 변경되었는지 확인
+    if (!forceUpdate && APP_STATE.lastResponseCount === totalResponses) {
+        // 데이터가 변경되지 않았으면 업데이트하지 않음
+        return;
+    }
+    
+    // 응답 수 저장
+    APP_STATE.lastResponseCount = totalResponses;
+    
     // 통계 정보 업데이트
     document.getElementById('stats-question-num').textContent = `Q${state.currentQuestion}`;
     document.getElementById('stats-question-text').textContent = questionData.question_text;
     
-    const currentResponses = responses[state.currentQuestion] || {};
-    const totalResponses = Object.keys(currentResponses).length;
     const totalParticipants = participants.length;
     const responseRate = totalParticipants > 0 ? Math.round((totalResponses / totalParticipants) * 100) : 0;
     
@@ -938,8 +951,13 @@ function updateRealtimeStats() {
         }
     });
     
-    // 차트 업데이트
-    updateWaitingChart(answerStats, questionData);
+    // 답변 통계가 변경되었는지 확인
+    const statsKey = JSON.stringify(answerStats);
+    if (APP_STATE.lastStatsKey !== statsKey || forceUpdate) {
+        APP_STATE.lastStatsKey = statsKey;
+        // 차트 업데이트
+        updateWaitingChart(answerStats, questionData);
+    }
     
     // 요약 통계 표시
     const summaryDiv = document.getElementById('stats-summary');
@@ -1091,10 +1109,24 @@ function initSupabase() {
     return false;
 }
 
+// Storage 이벤트 리스너 - 다른 사용자의 응답 감지
+window.addEventListener('storage', (e) => {
+    if (e.key === STORAGE_KEYS.RESPONSES) {
+        // 통계 화면을 보고 있는 경우에만 업데이트
+        const currentScreen = document.querySelector('.screen.active')?.id;
+        const statsDiv = document.getElementById('realtime-stats');
+        if (currentScreen === 'waiting-screen' && statsDiv && statsDiv.style.display !== 'none') {
+            // 응답이 추가되었으므로 즉시 통계 업데이트
+            updateRealtimeStats();
+        }
+    }
+});
+
 // 페이지 언로드시 정리
 window.addEventListener('beforeunload', () => {
     clearInterval(APP_STATE.timerInterval);
     clearInterval(APP_STATE.syncInterval);
+    clearInterval(APP_STATE.statsUpdateInterval);
 });
 
 // 전역 함수로 내보내기
