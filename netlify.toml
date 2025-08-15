@@ -1,8 +1,16 @@
 [build]
   publish = "."
+  command = "echo 'No build command needed'"
 
 [build.environment]
   NODE_VERSION = "18"
+
+# 환경변수를 HTML 파일에 주입
+[[plugins]]
+  package = "@netlify/plugin-inline-functions-env"
+
+[context.production.environment]
+  # 프로덕션 환경변수 (Netlify 대시보드에서 설정)
 
 [[headers]]
   for = "/*"
