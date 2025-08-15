@@ -431,6 +431,9 @@ function showQuestion(question, questionNumber) {
     // 현재 문제 번호 저장
     APP_STATE.currentQuestion = question.question_id || questionNumber;
     
+    // 새 문제로 전환되었으므로 통계 표시 플래그 초기화
+    APP_STATE.hasShownStats = false;
+    
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('question-screen').classList.add('active');
     
@@ -800,8 +803,14 @@ function showSubmittedScreen(answerText) {
     
     // 대기 화면으로 전환하면서 실시간 통계 표시
     setTimeout(() => {
-        showWaitingScreenWithStats();
-    }, 3000); // 3초 후 통계 화면으로 전환
+        // 이미 다른 화면으로 전환되었으면 무시
+        const currentScreen = document.querySelector('.screen.active')?.id;
+        if (currentScreen === 'submitted-screen') {
+            // submitted-screen에서 통계 보기로 전환했음을 표시
+            APP_STATE.hasShownStats = true;
+            showWaitingScreenWithStats();
+        }
+    }, 1000); // 1초 후 통계 화면으로 전환
 }
 
 // 대기 화면
