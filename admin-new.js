@@ -25,7 +25,7 @@ const STORAGE_KEYS = {
     QUESTIONS: 'survey_questions',
     RESPONSES: 'survey_responses',
     PARTICIPANTS: 'survey_participants',
-    QUIZ_DATA: 'quiz_data_60'
+    QUIZ_DATA: 'quiz_data'
 };
 
 // 세션 정보

@@ -21,8 +21,12 @@ const APP_STATE = {
         userId: null,
         nickname: null,
         gender: null,
-        color: null
-    }
+        color: null,
+        registered: false
+    },
+    isSubmitting: false,
+    hasShownStats: false,
+    statsUpdateInterval: null
 };
 
 // LocalStorage 키
@@ -134,7 +138,8 @@ function setupRegistration() {
             userId: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
             nickname: nickname,
             gender: selectedGender,
-            color: color
+            color: color,
+            registered: true
         };
         
         // 참여자 목록에 추가
@@ -160,8 +165,7 @@ function setupRegistration() {
         document.getElementById('my-color').style.backgroundColor = color;
         document.getElementById('user-info').textContent = `${nickname} | © 2025 청년부 수련회`;
         
-        // 동기화 시작
-        startUserSync();
+        // RealtimeSync가 동기화를 처리함
     });
 }
 
@@ -325,13 +329,13 @@ function initUserScreen() {
         const savedUserInfo = sessionStorage.getItem(STORAGE_KEYS.USER_INFO);
         if (savedUserInfo) {
             APP_STATE.userInfo = JSON.parse(savedUserInfo);
+            APP_STATE.userInfo.registered = true;  // 등록 상태 명시
             // 이미 등록된 사용자는 대기 화면으로
             document.getElementById('registration-screen').classList.remove('active');
             document.getElementById('waiting-screen').classList.add('active');
             document.getElementById('my-nickname').textContent = APP_STATE.userInfo.nickname;
             document.getElementById('my-color').style.backgroundColor = APP_STATE.userInfo.color;
             document.getElementById('user-info').textContent = `${APP_STATE.userInfo.nickname} | © 2025 청년부 수련회`;
-            startUserSync();
         } else {
             // 새 사용자는 등록 화면
             setupRegistration();
@@ -356,64 +360,8 @@ function initUserScreen() {
     });
 }
 
-// 사용자 화면 동기화
-function startUserSync() {
-    APP_STATE.syncInterval = setInterval(() => {
-        const state = JSON.parse(localStorage.getItem(STORAGE_KEYS.SURVEY_STATE) || '{}');
-        const responses = JSON.parse(localStorage.getItem(STORAGE_KEYS.RESPONSES) || '{}');
-        
-        // 참여자 버블 업데이트
-        updateParticipantsBubbles();
-        
-        // 타이머 업데이트
-        if (state.status === 'active' && state.currentQuestion > 0) {
-            const remaining = Math.max(0, Math.floor((state.timerEnd - Date.now()) / 1000));
-            const minutes = Math.floor(remaining / 60);
-            const seconds = remaining % 60;
-            const timerEl = document.getElementById('timer');
-            if (timerEl) {
-                timerEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            }
-            
-            const questionNumEl = document.querySelector('.question-number');
-            if (questionNumEl) {
-                const currentQ = APP_STATE.questions[state.currentQuestion - 1];
-                if (currentQ) {
-                    questionNumEl.textContent = `세션 ${currentQ.session_number} - 문제 ${state.currentQuestion} / ${APP_STATE.totalQuestions}`;
-                }
-            }
-        }
-        
-        // 화면 상태 관리
-        if (state.status === 'active' && state.currentQuestion > 0) {
-            const currentQ = APP_STATE.questions[state.currentQuestion - 1];
-            const hasAnswered = responses[state.currentQuestion]?.[APP_STATE.userInfo.userId];
-            
-            if (!hasAnswered && currentQ) {
-                // 조건부 질문 체크
-                if (currentQ.constraints?.condition) {
-                    const conditionMet = checkCondition(currentQ.constraints.condition, responses);
-                    if (!conditionMet) {
-                        // 조건을 만족하지 않으면 제출 완료 화면
-                        showSubmittedScreen('조건을 만족하지 않아 건너뜁니다');
-                        return;
-                    }
-                }
-                
-                // 문제 표시
-                if (!document.getElementById('question-screen').classList.contains('active')) {
-                    showQuestion(currentQ, state.currentQuestion);
-                }
-            } else if (hasAnswered) {
-                showSubmittedScreen();
-            }
-        } else if (state.status === 'finished') {
-            showFinishedScreen();
-        } else {
-            showWaitingScreen();
-        }
-    }, 500);
-}
+// RealtimeSync 모듈이 동기화를 처리합니다
+// startUserSync 함수는 제거되었습니다
 
 // 조건 확인
 function checkCondition(condition, responses) {
@@ -431,8 +379,15 @@ function showQuestion(question, questionNumber) {
     // 현재 문제 번호 저장
     APP_STATE.currentQuestion = question.question_id || questionNumber;
     
-    // 새 문제로 전환되었으므로 통계 표시 플래그 초기화
+    // 새 문제로 전환되었으므로 상태 초기화
     APP_STATE.hasShownStats = false;
+    APP_STATE.isSubmitting = false;
+    
+    // 통계 업데이트 인터벌 정리
+    if (APP_STATE.statsUpdateInterval) {
+        clearInterval(APP_STATE.statsUpdateInterval);
+        APP_STATE.statsUpdateInterval = null;
+    }
     
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('question-screen').classList.add('active');
@@ -1175,7 +1130,6 @@ window.addEventListener('storage', (e) => {
 // 페이지 언로드시 정리
 window.addEventListener('beforeunload', () => {
     clearInterval(APP_STATE.timerInterval);
-    clearInterval(APP_STATE.syncInterval);
     clearInterval(APP_STATE.statsUpdateInterval);
 });
 
