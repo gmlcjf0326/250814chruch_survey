@@ -191,18 +191,21 @@
     
     <!-- 설정 및 앱 스크립트 -->
     <script src="config.js"></script>
-    <script src="supabase-sync.js"></script>
-    <script src="realtime-sync.js"></script>
+    <script src="session-manager.js"></script>
+    <script src="supabase-realtime.js"></script>
+    <script src="sync-manager.js"></script>
     <script src="app-new.js"></script>
     <script>
         // 사용자 화면 초기화
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
+            // 통합 동기화 관리자 초기화
+            if (typeof SyncManager !== 'undefined') {
+                await SyncManager.init('user');
+            }
+            
+            // 사용자 화면 초기화
             if (typeof initUserScreen === 'function') {
                 initUserScreen();
-            }
-            // 실시간 동기화 시작
-            if (typeof RealtimeSync !== 'undefined') {
-                RealtimeSync.init('user');
             }
         });
     </script>

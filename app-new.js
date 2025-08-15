@@ -150,15 +150,20 @@ function setupRegistration() {
             is_active: true
         };
         
-        // Supabase 사용 가능한 경우 저장
-        if (typeof SupabaseSync !== 'undefined' && SupabaseSync.useSupabase) {
-            await SupabaseSync.registerParticipant(newParticipant);
+        // SyncManager를 통해 참여자 등록
+        if (typeof SyncManager !== 'undefined') {
+            await SyncManager.registerParticipant(newParticipant);
         } else {
             participants.push(newParticipant);
             localStorage.setItem(STORAGE_KEYS.PARTICIPANTS, JSON.stringify(participants));
         }
         
-        sessionStorage.setItem(STORAGE_KEYS.USER_INFO, JSON.stringify(APP_STATE.userInfo));
+        // SessionManager를 통해 사용자 정보 영구 저장
+        if (typeof SessionManager !== 'undefined') {
+            SessionManager.saveUserInfo(APP_STATE.userInfo);
+        } else {
+            sessionStorage.setItem(STORAGE_KEYS.USER_INFO, JSON.stringify(APP_STATE.userInfo));
+        }
         
         // 참여자 버블 업데이트
         updateParticipantsBubbles();
@@ -332,10 +337,13 @@ function initUserScreen() {
             return;
         }
         
-        // 기존 사용자 정보 확인
-        const savedUserInfo = sessionStorage.getItem(STORAGE_KEYS.USER_INFO);
+        // SessionManager를 통해 사용자 정보 확인
+        const savedUserInfo = (typeof SessionManager !== 'undefined') ? 
+            SessionManager.getUserInfo() : 
+            JSON.parse(sessionStorage.getItem(STORAGE_KEYS.USER_INFO) || 'null');
+            
         if (savedUserInfo) {
-            APP_STATE.userInfo = JSON.parse(savedUserInfo);
+            APP_STATE.userInfo = savedUserInfo;
             APP_STATE.userInfo.registered = true;  // 등록 상태 명시
             // 이미 등록된 사용자는 대기 화면으로
             document.getElementById('registration-screen').classList.remove('active');
